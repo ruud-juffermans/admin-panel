@@ -6,7 +6,7 @@ import type { TwinPerformanceWindow } from '../../api/types';
 import { StatTile } from '../../components/StatTile';
 import { TwinData } from '../../components/TwinState';
 import { Badge, Card, CardHead, Grid, Muted, SectionTitle, Table, TableWrap, Tiles } from '../../components/ui';
-import { fmtDateTime, fmtDay, fmtNumber } from '../../format';
+import { fmtDay, fmtNumber } from '../../format';
 import { rangeLabel, useRange } from '../../range';
 import { fmtMs, fmtPct, fmtUsd, MixBars, Mono, Stack } from './shared';
 
@@ -253,7 +253,7 @@ export function PerformanceTab() {
                           <td className="num">{fmtPct(v.error_rate)}</td>
                           <td className="num">{fmtPct(v.truncation_rate)}</td>
                           <td>
-                            <Muted>{fmtDateTime(v.last_seen)}</Muted>
+                            <Muted>{fmtDay(v.last_seen.slice(0, 10))}</Muted>
                           </td>
                         </tr>
                       ))}

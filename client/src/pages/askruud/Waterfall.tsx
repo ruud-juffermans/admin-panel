@@ -58,7 +58,8 @@ function SpanRow({ span, total }: { span: TwinSpan; total: number }) {
       <>
         <Mono>{span.name}</Mono>{' '}
         <Muted>
-          · {fmtNumber(span.detail!.input_tokens)} in / {fmtNumber(span.detail!.output_tokens)} out · {fmtUsd(span.detail!.cost_usd)}
+          {' '}
+          {fmtNumber(span.detail!.input_tokens)} in / {fmtNumber(span.detail!.output_tokens)} out · {fmtUsd(span.detail!.cost_usd)}
           {span.detail!.tool_call_count ? ` · ${span.detail!.tool_call_count} tool call${span.detail!.tool_call_count === 1 ? '' : 's'}` : ''}
           {span.detail!.retries ? ` · ${span.detail!.retries} retr${span.detail!.retries === 1 ? 'y' : 'ies'}` : ''}
         </Muted>
@@ -113,7 +114,7 @@ const Rows = styled.div`
 
 const Row = styled.div<{ $child: boolean }>`
   display: grid;
-  grid-template-columns: minmax(120px, 2fr) minmax(120px, 3fr) max-content;
+  grid-template-columns: minmax(140px, 2fr) minmax(100px, 2fr) max-content;
   gap: 10px;
   align-items: center;
   font-size: 0.82rem;
@@ -128,9 +129,8 @@ const Row = styled.div<{ $child: boolean }>`
 `;
 
 const Label = styled.div`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 `;
 
 const Track = styled.div`
