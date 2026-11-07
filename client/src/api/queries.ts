@@ -125,3 +125,47 @@ export function useFundsMutations() {
   const removeTopup = useMutation({ mutationFn: (id: string) => funds.removeTopup(id), onSuccess: invalidate });
   return { addTopup, removeTopup };
 }
+
+// ── Revault (revault.nl) ──────────────────────────────────────────────────────
+// Like the twin: one origin behind a proxy, so no retries — a 502 means the
+// Revault server is down and the page shows that state.
+
+import { revault } from './revault';
+import type { RevaultIntakeStatus } from './types';
+
+const revaultOpts = { retry: 0 as const };
+
+export const useRevaultIntakes = (status?: RevaultIntakeStatus) =>
+  useQuery({ queryKey: ['revault', 'intakes', status ?? 'all'], queryFn: () => revault.intakes(status), ...revaultOpts });
+export const useRevaultIntakeStats = () =>
+  useQuery({ queryKey: ['revault', 'intakes', 'stats'], queryFn: revault.intakeStats, ...revaultOpts });
+export const useRevaultSubscribers = () =>
+  useQuery({ queryKey: ['revault', 'newsletter', 'list'], queryFn: () => revault.subscribers(), ...revaultOpts });
+export const useRevaultNewsletterStats = () =>
+  useQuery({ queryKey: ['revault', 'newsletter', 'stats'], queryFn: revault.newsletterStats, ...revaultOpts });
+export const useRevaultOverview = (days: number) =>
+  useQuery({ queryKey: ['revault', 'analytics', 'overview', days], queryFn: () => revault.overview(days), ...revaultOpts });
+export const useRevaultTimeseries = (days: number) =>
+  useQuery({ queryKey: ['revault', 'analytics', 'timeseries', days], queryFn: () => revault.timeseries(days), ...revaultOpts });
+export const useRevaultTopPages = (days: number) =>
+  useQuery({ queryKey: ['revault', 'analytics', 'top-pages', days], queryFn: () => revault.topPages(days), ...revaultOpts });
+
+export function useRevaultIntakeMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['revault', 'intakes'] });
+  const update = useMutation({
+    mutationFn: ({ reference, ...body }: { reference: string; status?: RevaultIntakeStatus; notes?: string | null }) =>
+      revault.updateIntake(reference, body),
+    onSuccess: invalidate,
+  });
+  const remove = useMutation({ mutationFn: (reference: string) => revault.removeIntake(reference), onSuccess: invalidate });
+  return { update, remove };
+}
+
+export function useRevaultNewsletterMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['revault', 'newsletter'] });
+  const unsubscribe = useMutation({ mutationFn: (id: string) => revault.unsubscribe(id), onSuccess: invalidate });
+  const remove = useMutation({ mutationFn: (id: string) => revault.removeSubscriber(id), onSuccess: invalidate });
+  return { unsubscribe, remove };
+}

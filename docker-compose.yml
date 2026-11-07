@@ -7,9 +7,11 @@
 # Environment tab (Dokploy writes it to ./.env, read below), add the two
 # domains for service "app". No host port is published.
 #
-# The twin is reached over the same network by its compose service name; set
-# TWIN_API_URL to e.g. http://digital-twin-app-1:3000 (docker ps shows the
-# name) or to https://ai.ruudjuffermans.nl.
+# The twin and the Revault server are reached over the same network by their
+# compose service names; set TWIN_API_URL to e.g. http://digital-twin-app-1:3000
+# and REVAULT_API_URL to e.g. http://revault-server-1:4000 (docker ps shows the
+# names), or to their public origins (https://ai.ruudjuffermans.nl,
+# https://api.revault.nl).
 #
 # Backups: a one-shot dump from a daily host cron —
 #   docker compose --profile backup run --rm db-backup

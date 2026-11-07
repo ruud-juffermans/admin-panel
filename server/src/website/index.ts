@@ -8,6 +8,7 @@ import { analyticsRouter } from './routes/analytics.js';
 import { adminRouter } from './routes/admin.js';
 import { fundsRouter } from './routes/funds.js';
 import { createTwinProxy } from './twinProxy.js';
+import { createRevaultProxy } from './revaultProxy.js';
 
 // The website module, mounted at /api/website. Same paths as the platform
 // server used to serve, so the portfolio's src/lib/api.ts only changes origin.
@@ -38,5 +39,12 @@ websiteRouter.use(
   '/admin/twin',
   requireAdmin,
   createTwinProxy({ baseUrl: config.twinApiUrl, token: config.twinAdminToken, timeoutMs: 10_000 }),
+);
+// Revault (revault.nl): intakes, newsletter signups and traffic, proxied to
+// that site's own server with its service token.
+websiteRouter.use(
+  '/admin/revault',
+  requireAdmin,
+  createRevaultProxy({ baseUrl: config.revaultApiUrl, token: config.revaultAdminToken, timeoutMs: 10_000 }),
 );
 websiteRouter.use('/admin', requireAdmin, adminRouter);

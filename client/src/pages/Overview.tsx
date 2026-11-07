@@ -6,6 +6,8 @@ import {
   useNewsletterStats,
   useFunds,
   useOverview,
+  useRevaultIntakeStats,
+  useRevaultNewsletterStats,
   useTimeseries,
   useTwinApprovals,
   useTwinBudget,
@@ -15,6 +17,7 @@ import {
   useTwinTimeseries,
   useSettings,
 } from '../api/queries';
+import { ApiError } from '../api/client';
 import { StatTile } from '../components/StatTile';
 import { isTwinUnavailable, twinErrorMessage } from '../components/TwinState';
 import { Alert, Badge, Card, CardHead, Lead, Muted, Page, PageHeader, SectionTitle, Tiles, Title } from '../components/ui';
@@ -39,6 +42,10 @@ export function OverviewPage() {
   const fundsQuery = useFunds();
   const perf = useTwinPerformance(days);
   const settings = useSettings();
+  const revaultIntakes = useRevaultIntakeStats();
+  const revaultNewsletter = useRevaultNewsletterStats();
+  const newIntakes = revaultIntakes.data?.counts.NEW ?? 0;
+  const revaultDown = revaultIntakes.error && revaultIntakes.error instanceof ApiError && (revaultIntakes.error.status === 502 || revaultIntakes.error.status === 503);
 
   const o = overview.data;
   const t = twin.data;
@@ -88,13 +95,15 @@ export function OverviewPage() {
     if (rateLimited > 0) attention.push({ key: 'rate-limited', object: 'provider', tone: 'amber', text: `The LLM provider rate-limited the twin ${rateLimited} time${rateLimited === 1 ? '' : 's'} over the last ${days}d`, to: perfTo });
   }
   if (twinDown) attention.push({ key: 'twin', object: 'twin', tone: 'amber', text: 'Ask Ruud is unavailable', to: '/ask-ruud' });
+  if (newIntakes > 0) attention.push({ key: 'revault', object: 'intake', tone: 'red', text: `${newIntakes} new Revault intake request${newIntakes === 1 ? '' : 's'} waiting for an assessment`, to: '/revault' });
+  if (revaultDown) attention.push({ key: 'revault-down', object: 'revault', tone: 'amber', text: 'Revault is unavailable', to: '/revault' });
 
   return (
     <Page>
       <PageHeader>
         <div>
           <Title>Overview</Title>
-          <Lead>ruudjuffermans.nl and Ask Ruud, {rangeLabel(days)}.</Lead>
+          <Lead>ruudjuffermans.nl, Ask Ruud and revault.nl, {rangeLabel(days)}.</Lead>
         </div>
       </PageHeader>
 
@@ -129,6 +138,8 @@ export function OverviewPage() {
         <StatTile label="Views yesterday" value={viewsYesterday ?? '—'} hint={viewSeries.length ? `${viewSeries.at(-1)!.count} so far today` : undefined} to="/site" />
         <StatTile label="Twin conversations" value={twinDown ? 'n/a' : (t?.window.threads ?? '—')} previous={t?.previous.threads} period={`previous ${days}d`} trend={twinSeries.data?.series.map((p) => p.threads)} hint={twinDown ? 'Ask Ruud unavailable' : twinToday !== null ? `${twinToday} today` : undefined} to="/ask-ruud?tab=conversations" />
         <StatTile label="Subscribers" value={newsletter.data?.active ?? '—'} hint="active" to="/inbox?tab=newsletter" />
+        <StatTile label="Revault intakes" value={revaultDown ? 'n/a' : (revaultIntakes.data ? newIntakes : '—')} hint={revaultDown ? 'Revault unavailable' : revaultIntakes.data ? `${revaultIntakes.data.total} all time` : 'new requests'} tone={newIntakes > 0 ? 'warn' : undefined} to="/revault" />
+        <StatTile label="Revault subscribers" value={revaultDown ? 'n/a' : (revaultNewsletter.data?.active ?? '—')} hint={revaultDown ? 'Revault unavailable' : 'active'} to="/revault?tab=newsletter" />
         <StatTile
           label="Funds, active provider"
           value={!activeProvider ? '—' : activeProvider.remaining_usd === null ? 'unknown' : fmtUsd(activeProvider.remaining_usd, 2)}

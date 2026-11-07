@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../auth';
-import { useContactStats, useTwinApprovals } from '../api/queries';
+import { useContactStats, useRevaultIntakeStats, useTwinApprovals } from '../api/queries';
 import { RangePicker } from '../components/RangePicker';
 
 // App shell: left nav on wide screens, a top bar with the date range, and a
@@ -13,6 +13,7 @@ const NAV = [
   { to: '/ask-ruud', label: 'Ask Ruud', icon: '✦', mobile: true },
   { to: '/inbox', label: 'Inbox', icon: '✉', mobile: true },
   { to: '/funds', label: 'Funds', icon: '◈', mobile: true },
+  { to: '/revault', label: 'Revault', icon: '◆', mobile: true },
 ];
 
 export function Shell() {
@@ -21,8 +22,10 @@ export function Shell() {
   const newCount = contactStats.data?.counts.new ?? 0;
   const approvals = useTwinApprovals();
   const pendingCount = approvals.data?.pending.length ?? 0;
-  const badgeFor = (to: string) => (to === '/inbox' ? newCount : to === '/ask-ruud' ? pendingCount : 0);
-  const badgeLabel = (to: string) => (to === '/inbox' ? 'new messages' : 'pending approvals');
+  const revaultStats = useRevaultIntakeStats();
+  const newIntakes = revaultStats.data?.counts.NEW ?? 0;
+  const badgeFor = (to: string) => (to === '/inbox' ? newCount : to === '/ask-ruud' ? pendingCount : to === '/revault' ? newIntakes : 0);
+  const badgeLabel = (to: string) => (to === '/inbox' ? 'new messages' : to === '/revault' ? 'new intake requests' : 'pending approvals');
 
   // Each route is a page: update the title and move focus to the page heading
   // so screen readers announce where they landed (WCAG 2.4.2 / 2.4.3).

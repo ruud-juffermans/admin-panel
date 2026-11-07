@@ -484,3 +484,61 @@ export interface TwinPrompt {
   current: { prompt_version: string | null; kb_version: string | null; provider: string; model: string; text: string };
   versions: TwinPromptVersion[];
 }
+
+// ── Revault (revault.nl), through the panel's revault proxy ──────────────────
+// Response shapes of revault/server/src/routes/admin.ts.
+
+export type RevaultIntakeStatus = 'NEW' | 'ASSESSED' | 'VIABLE' | 'NOT_VIABLE' | 'AGREEMENT' | 'RECOVERY' | 'CLOSED';
+export const REVAULT_INTAKE_STATUSES: RevaultIntakeStatus[] = ['NEW', 'ASSESSED', 'VIABLE', 'NOT_VIABLE', 'AGREEMENT', 'RECOVERY', 'CLOSED'];
+
+export interface RevaultIntake {
+  id: string;
+  reference: string; // RV-YYYYMM-XXXX, quoted in all correspondence
+  name: string;
+  email: string;
+  phone: string | null;
+  walletType: string;
+  walletSoftware: string | null;
+  issueType: string;
+  estimatedValue: string | null;
+  description: string;
+  locale: string;
+  status: RevaultIntakeStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RevaultList<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface RevaultIntakeStats {
+  counts: Record<RevaultIntakeStatus, number>;
+  total: number;
+}
+
+export interface RevaultSubscriber {
+  id: string;
+  email: string;
+  locale: string | null;
+  source: string;
+  active: boolean;
+  createdAt: string;
+  unsubscribedAt: string | null;
+}
+
+export interface RevaultNewsletterStats {
+  total: number;
+  active: number;
+  unsubscribed: number;
+  bySource: Array<{ source: string; count: number }>;
+}
+
+export interface RevaultPathViews {
+  path: string;
+  views: number;
+}

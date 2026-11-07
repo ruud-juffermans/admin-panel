@@ -50,6 +50,11 @@ export const config = {
   twinApiUrl: process.env.TWIN_API_URL ?? 'http://localhost:8000',
   twinAdminToken: process.env.TWIN_ADMIN_TOKEN ?? '',
 
+  // The Revault server's admin API (revault.nl: intakes, newsletter, page
+  // views), reached server-side only with its ADMIN_SERVICE_TOKEN.
+  revaultApiUrl: process.env.REVAULT_API_URL ?? 'http://localhost:4000',
+  revaultAdminToken: process.env.REVAULT_ADMIN_TOKEN ?? '',
+
   // "Needs attention" fires when a provider's remaining funds drop below this.
   fundsAlertUsd: float('FUNDS_ALERT_USD', 5),
 

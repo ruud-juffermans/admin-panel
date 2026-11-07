@@ -12,6 +12,10 @@ and the portfolio site's backend in one deployment:
   subscribers, page-view analytics, LLM funds and the top-up ledger.
 - **Twin proxy** at `/api/website/admin/twin/*`: forwards an allow-list of the
   twin's `/api/admin/*` endpoints with the bearer token added server side.
+- **Revault proxy** at `/api/website/admin/revault/*`: the same for
+  [revault.nl](https://revault.nl)'s server (`/api/revault/admin/*`): intake
+  requests, newsletter signups and page views, shown under "Revault" in the
+  panel.
 - **The SPA** (Vite + React) served from the same origin.
 
 Production: `https://admin.ruudjuffermans.nl` (panel) and
@@ -27,7 +31,7 @@ admin-panel/
 │   │                  page_views (schema "website", identical to the platform DB), llm_topups
 │   └── src/
 │       ├── auth/      .env login, signed-cookie session, requireAdmin
-│       ├── website/   public routes, admin routes, funds, twin proxy
+│       ├── website/   public routes, admin routes, funds, twin proxy, revault proxy
 │       └── scripts/   hash-password
 ├── client/            Vite + React + styled-components + TanStack Query + Recharts
 ├── Dockerfile         client build → node image serving dist/ and the API on :3000
@@ -66,6 +70,7 @@ bcrypt `ADMIN_PASSWORD_HASH` and a `SESSION_SECRET` of at least 32 characters.
 | `CONTACT_EMAIL`, `MAIL_FROM`, `SMTP_*` | Contact-form delivery (console fallback without `SMTP_HOST`) |
 | `NEWSLETTER_API_KEY` | Buttondown; `placeholder` keeps signups local only |
 | `TWIN_API_URL`, `TWIN_ADMIN_TOKEN` | The twin's admin API; the token never reaches the browser |
+| `REVAULT_API_URL`, `REVAULT_ADMIN_TOKEN` | The Revault server's admin API (`ADMIN_SERVICE_TOKEN` there); same rule |
 | `FUNDS_ALERT_USD` | "Needs attention" threshold for remaining LLM credit |
 | `TWIN_TTFT_P95_ALERT_MS`, `TWIN_ERROR_RATE_ALERT`, `TWIN_TRUNCATION_RATE_ALERT` | Twin performance thresholds for "Needs attention" (defaults 4000 ms, 0.05, 0.02) |
 
@@ -85,4 +90,5 @@ top-ups minus the twin's spend since the first top-up.
   in production. Rotating `SESSION_SECRET` signs out everywhere.
 - Admin responses are `Cache-Control: no-store`; the SPA is `noindex`.
 - CORS only on `/api/website/*`, only for the portfolio's origin, no credentials.
-- The twin proxy forwards an explicit allow-list of paths and query parameters.
+- The twin and Revault proxies forward an explicit allow-list of paths and
+  query parameters.
