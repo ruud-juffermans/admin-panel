@@ -1,0 +1,75 @@
+// The panel's own database: the three website tables the platform server used
+// to own (same schema name, same columns, so a data-only pg_dump of the old
+// database loads straight in — see docs/MIGRATION.md) plus the LLM top-up ledger.
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["website"]
+}
+
+enum ContactStatus {
+  new
+  responded
+  archived
+
+  @@schema("website")
+}
+
+model ContactSubmission {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  message   String
+  status    ContactStatus @default(new)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("contact_submissions")
+  @@schema("website")
+}
+
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  source         String    @default("web")
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  unsubscribedAt DateTime? @map("unsubscribed_at")
+
+  @@map("newsletter_subscribers")
+  @@schema("website")
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  locale    String?
+  referrer  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([path])
+  @@index([createdAt])
+  @@map("page_views")
+  @@schema("website")
+}
+
+// Manual record of money put on an LLM provider account (PRD F3). Providers
+// without a balance API (OpenAI, Gemini) get "remaining = top-ups − spend".
+model LlmTopup {
+  id         String   @id @default(cuid())
+  provider   String
+  amountUsd  Float    @map("amount_usd")
+  toppedUpAt DateTime @map("topped_up_at")
+  note       String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([provider, toppedUpAt])
+  @@map("llm_topups")
+  @@schema("website")
+}

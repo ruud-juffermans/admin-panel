@@ -1,0 +1,72 @@
+# Production: the panel (API + admin SPA) and its own Postgres. TLS and the
+# domains terminate at Dokploy's Traefik on dokploy-network:
+#   admin.ruudjuffermans.nl → service "app", container port 3000
+#   api.ruudjuffermans.nl   → service "app" as well (the portfolio's backend)
+#
+# Dokploy: create a Compose service pointing at this file, paste .env into its
+# Environment tab (Dokploy writes it to ./.env, read below), add the two
+# domains for service "app". No host port is published.
+#
+# The twin is reached over the same network by its compose service name; set
+# TWIN_API_URL to e.g. http://digital-twin-app-1:3000 (docker ps shows the
+# name) or to https://ai.ruudjuffermans.nl.
+#
+# Backups: a one-shot dump from a daily host cron —
+#   docker compose --profile backup run --rm db-backup
+# writes ./backups/admin-<date>.sql.gz. Restore:
+#   gunzip -c backups/admin-<date>.sql.gz | docker compose exec -T db psql -U admin admin
+services:
+  app:
+    build: .
+    expose:
+      - "3000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://admin:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/admin?schema=website
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+    networks:
+      - default
+      - dokploy-network
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: admin
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: always
+
+  # One-shot dump, run from host cron (see header). Not started by `up`.
+  db-backup:
+    image: postgres:16-alpine
+    profiles: ["backup"]
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    entrypoint:
+      ["sh", "-c", "pg_dump -h db -U admin admin | gzip > /backups/admin-$(date +%F).sql.gz"]
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
+
+networks:
+  # Dokploy's proxy network; Traefik routes the domains here.
+  dokploy-network:
+    external: true

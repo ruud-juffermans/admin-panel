@@ -1,0 +1,18 @@
+# Local development: only Postgres. Run the server with `npm run dev` in
+# server/ (DATABASE_URL below) and the client with `npm run dev` in client/.
+#   docker compose -f docker-compose.dev.yml up -d
+#   DATABASE_URL=postgresql://admin:admin@localhost:5433/admin?schema=website
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: admin
+    ports:
+      - "5433:5432"
+    volumes:
+      - db-dev-data:/var/lib/postgresql/data
+
+volumes:
+  db-dev-data:
