@@ -53,6 +53,13 @@ export const config = {
   // "Needs attention" fires when a provider's remaining funds drop below this.
   fundsAlertUsd: float('FUNDS_ALERT_USD', 5),
 
+  // Twin performance alerts on the Overview, over the selected range.
+  twinAlerts: {
+    ttftP95Ms: int('TWIN_TTFT_P95_ALERT_MS', 4000),
+    errorRate: float('TWIN_ERROR_RATE_ALERT', 0.05),
+    truncationRate: float('TWIN_TRUNCATION_RATE_ALERT', 0.02),
+  },
+
   // Where the built client lives (Dockerfile copies client/dist here).
   staticDir: process.env.STATIC_DIR ?? new URL('../../client/dist', import.meta.url).pathname,
 };

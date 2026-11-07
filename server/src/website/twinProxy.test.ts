@@ -11,6 +11,9 @@ describe('twin proxy allow-list', () => {
     assert.equal(isAllowed('POST', '/approvals/t-123_x'), true);
     assert.equal(isAllowed('GET', '/stats/overview'), true);
     assert.equal(isAllowed('GET', '/evals/42'), true);
+    assert.equal(isAllowed('GET', '/stats/performance'), true);
+    assert.equal(isAllowed('GET', '/turns/17/trace'), true);
+    assert.equal(isAllowed('GET', '/turns/abc/trace'), false);
     assert.equal(isAllowed('PATCH', '/unanswered/7'), true);
     assert.equal(isAllowed('GET', '/knowledge'), true);
     assert.equal(isAllowed('GET', '/threads'), true);

@@ -11,11 +11,13 @@ import type {
   TwinGuardIncident,
   TwinKnowledge,
   TwinOverview,
+  TwinPerformance,
   TwinPrompt,
   TwinThread,
   TwinThreadFilters,
   TwinThreadSummary,
   TwinTurn,
+  TwinTurnTrace,
   TwinUnanswered,
 } from './types';
 
@@ -26,6 +28,8 @@ const TWIN = '/api/website/admin/twin';
 export const twin = {
   overview: (days: number) => get<TwinOverview>(`${TWIN}/stats/overview${qs({ days })}`),
   timeseries: (days: number) => get<{ days: number; series: TwinDayPoint[] }>(`${TWIN}/stats/timeseries${qs({ days })}`),
+  performance: (days: number) => get<TwinPerformance>(`${TWIN}/stats/performance${qs({ days })}`),
+  turnTrace: (turnId: number) => get<TwinTurnTrace>(`${TWIN}/turns/${turnId}/trace`),
   budget: (days: number) => get<TwinBudget>(`${TWIN}/budget${qs({ days })}`),
   approvals: () => get<{ pending: TwinApproval[] }>(`${TWIN}/approvals`),
   decide: (threadId: string, approved: boolean, note?: string) =>

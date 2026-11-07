@@ -7,6 +7,7 @@ import { ConversationsTab } from './askruud/Conversations';
 import { CostTab } from './askruud/Cost';
 import { PromptsTab } from './askruud/Prompts';
 import { EvalsTab } from './askruud/Evals';
+import { PerformanceTab } from './askruud/Performance';
 import { TwinOverviewTab } from './askruud/Overview';
 import { SafetyTab } from './askruud/Safety';
 
@@ -16,6 +17,7 @@ const TABS = [
   { id: 'prompts', label: 'Prompts' },
   { id: 'approvals', label: 'Approvals' },
   { id: 'cost', label: 'Cost' },
+  { id: 'performance', label: 'Performance' },
   { id: 'safety', label: 'Safety' },
   { id: 'evals', label: 'Evals' },
 ] as const;
@@ -56,6 +58,7 @@ export function AskRuudPage() {
       {tab === 'prompts' && <PromptsTab />}
       {tab === 'approvals' && <ApprovalsTab />}
       {tab === 'cost' && <CostTab />}
+      {tab === 'performance' && <PerformanceTab />}
       {tab === 'safety' && <SafetyTab />}
       {tab === 'evals' && <EvalsTab />}
     </Page>

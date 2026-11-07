@@ -22,6 +22,17 @@ websiteRouter.use('/newsletter', formRateLimit, newsletterRouter);
 websiteRouter.use('/analytics', analyticsRateLimit, analyticsRouter);
 
 // Admin: cookie session only.
+// Thresholds the client needs to decide what "needs attention" (set in .env).
+websiteRouter.get('/admin/settings', requireAdmin, (_req, res) => {
+  res.json({
+    funds_alert_usd: config.fundsAlertUsd,
+    twin_alerts: {
+      ttft_p95_ms: config.twinAlerts.ttftP95Ms,
+      error_rate: config.twinAlerts.errorRate,
+      truncation_rate: config.twinAlerts.truncationRate,
+    },
+  });
+});
 websiteRouter.use('/admin/funds', requireAdmin, fundsRouter);
 websiteRouter.use(
   '/admin/twin',

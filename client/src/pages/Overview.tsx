@@ -11,14 +11,16 @@ import {
   useTwinBudget,
   useTwinEvals,
   useTwinOverview,
+  useTwinPerformance,
   useTwinTimeseries,
+  useSettings,
 } from '../api/queries';
 import { StatTile } from '../components/StatTile';
 import { isTwinUnavailable, twinErrorMessage } from '../components/TwinState';
 import { Alert, Badge, Card, CardHead, Lead, Muted, Page, PageHeader, SectionTitle, Tiles, Title } from '../components/ui';
 import { fmtDay } from '../format';
 import { rangeLabel, useRange } from '../range';
-import { fmtUsd } from './askruud/shared';
+import { fmtMs, fmtUsd } from './askruud/shared';
 
 // Morning check: what needs a reply or a decision comes first, then the
 // numbers (actionable tiles before traffic). A twin outage only greys out
@@ -35,6 +37,8 @@ export function OverviewPage() {
   const approvals = useTwinApprovals();
   const evals = useTwinEvals();
   const fundsQuery = useFunds();
+  const perf = useTwinPerformance(days);
+  const settings = useSettings();
 
   const o = overview.data;
   const t = twin.data;
@@ -72,6 +76,17 @@ export function OverviewPage() {
   if (budgetRatio !== null && budgetRatio >= 0.8) attention.push({ key: 'budget', object: 'budget', tone: budgetRatio >= 1 ? 'red' : 'amber', text: `Twin budget at ${Math.round(budgetRatio * 100)}% of today's cap`, to: '/ask-ruud?tab=cost' });
   if (latestEval && !latestEval.met) attention.push({ key: 'eval', object: 'eval', tone: 'amber', text: 'Latest eval run failed its thresholds', to: '/ask-ruud?tab=evals', when: fmtDay(latestEval.created_at.slice(0, 10)) });
   for (const p of lowFunds) attention.push({ key: `funds-${p.id}`, object: 'funds', tone: p.active ? 'red' : 'amber', text: `${p.label} has ${fmtUsd(p.remaining_usd, 2)} left${p.remaining_source === 'estimate' ? ' (estimate)' : ''}${p.active ? ' and is the active provider' : ''}`, to: '/funds' });
+  // Performance over the selected range; thresholds come from the server's .env.
+  const pw = perf.data?.window;
+  const alerts = settings.data?.twin_alerts;
+  if (pw && alerts) {
+    const perfTo = '/ask-ruud?tab=performance';
+    if (pw.ttft_p95_ms !== null && pw.ttft_p95_ms > alerts.ttft_p95_ms) attention.push({ key: 'ttft', object: 'latency', tone: 'amber', text: `Twin time to first token p95 is ${fmtMs(pw.ttft_p95_ms)} over the last ${days}d (limit ${fmtMs(alerts.ttft_p95_ms)})`, to: perfTo });
+    if (pw.turns >= 5 && pw.error_rate >= alerts.error_rate) attention.push({ key: 'errors', object: 'errors', tone: 'red', text: `${Math.round(pw.error_rate * 100)}% of twin turns ended in an error over the last ${days}d`, to: perfTo });
+    if (pw.turns >= 5 && pw.truncation_rate >= alerts.truncation_rate) attention.push({ key: 'truncated', object: 'truncated', tone: 'amber', text: `${Math.round(pw.truncation_rate * 100)}% of twin answers were cut off at max_tokens`, to: perfTo });
+    const rateLimited = perf.data?.error_types.rate_limited ?? 0;
+    if (rateLimited > 0) attention.push({ key: 'rate-limited', object: 'provider', tone: 'amber', text: `The LLM provider rate-limited the twin ${rateLimited} time${rateLimited === 1 ? '' : 's'} over the last ${days}d`, to: perfTo });
+  }
   if (twinDown) attention.push({ key: 'twin', object: 'twin', tone: 'amber', text: 'Ask Ruud is unavailable', to: '/ask-ruud' });
 
   return (

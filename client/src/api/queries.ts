@@ -1,5 +1,5 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { analytics, contact, funds, newsletter } from './website';
+import { analytics, contact, funds, newsletter, settings } from './website';
 import type { ContactStatus, LlmProviderId } from './types';
 
 // Data is "fresh on reload" (PRD §3): no background polling, short stale window
@@ -18,6 +18,9 @@ export const useTopPages = (days: number) =>
   useQuery({ queryKey: ['analytics', 'top-pages', days], queryFn: () => analytics.topPages(days) });
 export const useTopReferrers = (days: number) =>
   useQuery({ queryKey: ['analytics', 'top-referrers', days], queryFn: () => analytics.topReferrers(days) });
+
+// Alert thresholds from the server's .env; they change on deploy only.
+export const useSettings = () => useQuery({ queryKey: ['settings'], queryFn: settings.get, staleTime: Infinity });
 
 export const useContactList = (status?: ContactStatus) =>
   useQuery({ queryKey: ['contact', 'list', status ?? 'all'], queryFn: () => contact.list(status) });
@@ -58,6 +61,10 @@ export const useTwinOverview = (days: number) =>
   useQuery({ queryKey: ['twin', 'overview', days], queryFn: () => twin.overview(days), ...twinOpts });
 export const useTwinTimeseries = (days: number) =>
   useQuery({ queryKey: ['twin', 'timeseries', days], queryFn: () => twin.timeseries(days), ...twinOpts });
+export const useTwinPerformance = (days: number) =>
+  useQuery({ queryKey: ['twin', 'performance', days], queryFn: () => twin.performance(days), ...twinOpts });
+export const useTwinTurnTrace = (turnId: number | null) =>
+  useQuery({ queryKey: ['twin', 'trace', turnId], queryFn: () => twin.turnTrace(turnId as number), enabled: turnId !== null, ...twinOpts });
 export const useTwinBudget = (days: number) =>
   useQuery({ queryKey: ['twin', 'budget', days], queryFn: () => twin.budget(days), ...twinOpts });
 // The inbox badge polls at most once a minute (PRD §3).

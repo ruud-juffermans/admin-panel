@@ -67,6 +67,7 @@ bcrypt `ADMIN_PASSWORD_HASH` and a `SESSION_SECRET` of at least 32 characters.
 | `NEWSLETTER_API_KEY` | Buttondown; `placeholder` keeps signups local only |
 | `TWIN_API_URL`, `TWIN_ADMIN_TOKEN` | The twin's admin API; the token never reaches the browser |
 | `FUNDS_ALERT_USD` | "Needs attention" threshold for remaining LLM credit |
+| `TWIN_TTFT_P95_ALERT_MS`, `TWIN_ERROR_RATE_ALERT`, `TWIN_TRUNCATION_RATE_ALERT` | Twin performance thresholds for "Needs attention" (defaults 4000 ms, 0.05, 0.02) |
 
 ## Funds
 

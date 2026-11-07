@@ -1,6 +1,7 @@
 import { del, get, patch, post, qs } from './client';
 import { request } from './client';
 import type {
+  AdminSettings,
   AnalyticsOverview,
   AuthUser,
   ContactStats,
@@ -25,6 +26,10 @@ export const auth = {
   login: (username: string, password: string) =>
     request<{ user: AuthUser }>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }), silent401: true }),
   logout: () => post<{ ok: true }>('/auth/logout'),
+};
+
+export const settings = {
+  get: () => get<AdminSettings>(`${ADMIN}/settings`),
 };
 
 export const funds = {

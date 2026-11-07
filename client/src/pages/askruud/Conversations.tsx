@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useOverlayDialog } from '../../components/useOverlayDialog';
 import styled from 'styled-components';
-import { useTwinThread, useTwinThreads } from '../../api/queries';
+import { useTwinThread, useTwinThreads, useTwinTurnTrace } from '../../api/queries';
 import type { TwinThreadFilters, TwinThreadSummary, TwinTurn } from '../../api/types';
 import { TwinData } from '../../components/TwinState';
-import { Badge, Button, Card, Empty, Input, Muted, SectionTitle, Segment, Segmented } from '../../components/ui';
+import { Badge, Button, Card, Empty, Input, Muted, SectionTitle, Segment, Segmented, Skeleton } from '../../components/ui';
 import { fmtDateTime, fmtNumber } from '../../format';
 import { useRange } from '../../range';
 import { FlagBadge, fmtMs, fmtPct, fmtUsd, Meta, Mono, OutcomeBadge, Stack } from './shared';
+import { Waterfall } from './Waterfall';
 
 const TOOLS = ['search_knowledge', 'get_availability', 'draft_contact_message'];
 
@@ -208,6 +209,8 @@ function TurnBlock({ turn }: { turn: TwinTurn }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const purged = turn.visitor_message === null && turn.answer === null;
+  // The waterfall is fetched only once the details are open.
+  const trace = useTwinTurnTrace(open ? turn.id : null);
 
   async function copyEvalCase() {
     const json = JSON.stringify(evalCase(turn), null, 2);
@@ -237,6 +240,9 @@ function TurnBlock({ turn }: { turn: TwinTurn }) {
           {turn.tools_used.length > 0 && <Badge>{turn.tools_used.join(', ')}</Badge>}
           <span>{fmtUsd(turn.cost_usd)}</span>
           <span>{fmtMs(turn.latency_ms)}</span>
+          {turn.ttft_ms !== null && <span title="time to first token">first token {fmtMs(turn.ttft_ms)}</span>}
+          {turn.retries ? <Badge $tone="amber">{turn.retries} retr{turn.retries === 1 ? 'y' : 'ies'}</Badge> : null}
+          {turn.error_type && <Badge $tone={turn.error_type === 'truncated' || turn.error_type.startsWith('tool') ? 'amber' : 'red'}>{turn.error_type.replace('_', ' ')}</Badge>}
           <MetaActions>
             <ExpandButton type="button" onClick={() => void copyEvalCase()} disabled={!turn.visitor_message}>
               {copied ? 'copied!' : 'copy as eval case'}
@@ -287,6 +293,17 @@ function TurnBlock({ turn }: { turn: TwinTurn }) {
               <dt>Cost · latency</dt>
               <dd>
                 {fmtUsd(turn.cost_usd)} · {fmtMs(turn.latency_ms)}
+                {turn.ttft_ms !== null && ` · first token ${fmtMs(turn.ttft_ms)}`}
+                {turn.finish_reason && (
+                  <>
+                    {' · finish '}
+                    <Mono>{turn.finish_reason}</Mono>
+                  </>
+                )}
+              </dd>
+              <dt>Length</dt>
+              <dd>
+                {turn.question_chars ?? '—'} / {turn.context_chars ?? '—'} / {turn.answer_chars ?? '—'} <Muted>chars: question / tool context / answer</Muted>
               </dd>
               <dt>Model</dt>
               <dd>
@@ -299,6 +316,10 @@ function TurnBlock({ turn }: { turn: TwinTurn }) {
                 prompt <Mono>{turn.prompt_version ?? '—'}</Mono> · kb <Mono>{turn.kb_version ?? '—'}</Mono>
               </dd>
             </dl>
+            <TraceBlock>
+              <dt>Timeline</dt>
+              {trace.isPending ? <Skeleton $h={80} /> : trace.error || !trace.data ? <Muted>Timeline unavailable.</Muted> : trace.data.spans.length === 0 ? <Muted>No trace recorded for this turn (before the performance telemetry).</Muted> : <Waterfall trace={trace.data} />}
+            </TraceBlock>
             <Button $size="sm" onClick={() => void copyEvalCase()} disabled={!turn.visitor_message}>
               {copied ? 'Copied!' : 'Copy as eval case'}
             </Button>
@@ -526,6 +547,17 @@ const Details = styled.div`
   ul {
     margin: 0;
     padding-left: 16px;
+  }
+`;
+
+const TraceBlock = styled.div`
+  margin: 0 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  dt {
+    color: var(--app-text-muted);
   }
 `;
 

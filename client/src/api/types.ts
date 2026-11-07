@@ -287,7 +287,139 @@ export interface TwinTurn {
   kb_version: string | null;
   locale: string | null;
   embed: boolean | null;
+  // Performance (twin migration 0009); null on turns recorded before it.
+  ttft_ms: number | null;
+  finish_reason: string | null;
+  retries: number | null;
+  error_type: TwinErrorType | null;
+  question_chars: number | null;
+  context_chars: number | null;
+  answer_chars: number | null;
   feedback?: TwinThreadFeedback | null;
+}
+
+// ── Ask Ruud performance ─────────────────────────────────────────────────────
+
+export type TwinErrorType = 'timeout' | 'rate_limited' | 'provider_5xx' | 'tool_timeout' | 'tool_failed' | 'truncated' | 'other';
+
+export interface TwinPerformanceWindow {
+  since: string;
+  until: string;
+  turns: number;
+  answered: number;
+  model_calls: number;
+  model_calls_per_turn: number;
+  ttft_p50_ms: number | null;
+  ttft_p95_ms: number | null;
+  latency_p50_ms: number | null;
+  latency_p95_ms: number | null;
+  tokens_per_second_p50: number | null;
+  ms_per_output_token_p50: number | null;
+  retries: number;
+  retries_per_100_turns: number;
+  error_rate: number;
+  truncation_rate: number;
+  problem_rate: number;
+  lengths: { question_p50: number | null; context_p50: number | null; answer_p50: number | null };
+}
+
+export interface TwinPerformanceDay {
+  day: string;
+  turns: number;
+  errors: number;
+  latency_p50_ms: number | null;
+  latency_p95_ms: number | null;
+  ttft_p50_ms: number | null;
+}
+
+export interface TwinToolStats {
+  name: string;
+  calls: number;
+  p50_ms: number | null;
+  p95_ms: number | null;
+  failures: number;
+  timeouts: number;
+}
+
+export interface TwinModelStats {
+  model: string;
+  calls: number;
+  latency_p50_ms: number | null;
+  latency_p95_ms: number | null;
+  ttft_p50_ms: number | null;
+  ttft_p95_ms: number | null;
+  tokens_per_second_p50: number | null;
+  input_tokens: number;
+  output_tokens: number;
+  cached_tokens: number;
+  cost_usd: number;
+  retries: number;
+  finish_reasons: Record<string, number>;
+}
+
+export interface TwinPromptVersionPerformance {
+  prompt_version: string;
+  turns: number;
+  first_seen: string;
+  last_seen: string;
+  ttft_p50_ms: number | null;
+  latency_p50_ms: number | null;
+  error_rate: number;
+  truncation_rate: number;
+  retries: number;
+}
+
+export interface TwinPerformance {
+  days: number;
+  window: TwinPerformanceWindow;
+  previous: TwinPerformanceWindow;
+  series: TwinPerformanceDay[];
+  time_split_ms: { guard: number; model: number; tools: number; verify: number };
+  tools: TwinToolStats[];
+  models: TwinModelStats[];
+  prompt_versions: TwinPromptVersionPerformance[];
+  error_types: Record<string, number>;
+  finish_reasons: Record<string, number>;
+}
+
+export interface TwinSpan {
+  name: string;
+  kind: 'node' | 'model' | 'tool';
+  start_ms: number;
+  duration_ms: number;
+  ok: boolean;
+  error_type: string | null;
+  detail: {
+    seq: number;
+    ttft_ms: number | null;
+    finish_reason: string | null;
+    retries: number;
+    input_tokens: number;
+    output_tokens: number;
+    cached_tokens: number;
+    cost_usd: number;
+    tool_call_count: number;
+  } | null;
+}
+
+export interface TwinTurnTrace {
+  turn_id: number;
+  thread_id: string;
+  created_at: string;
+  outcome: TwinOutcome;
+  total_ms: number;
+  ttft_ms: number | null;
+  finish_reason: string | null;
+  retries: number | null;
+  error_type: TwinErrorType | null;
+  spans: TwinSpan[];
+}
+
+// ── panel settings (server .env thresholds) ──────────────────────────────────
+
+export interface AdminSettings {
+  funds_alert_usd: number;
+  twin_alerts: { ttft_p95_ms: number; error_rate: number; truncation_rate: number };
 }
 
 export interface TwinThreadFeedback {

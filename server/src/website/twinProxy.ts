@@ -28,7 +28,10 @@ export const TWIN_ALLOW_LIST: Rule[] = [
   { method: 'POST', pattern: new RegExp(`^/approvals/${THREAD}$`) },
   { method: 'GET', pattern: /^\/stats\/overview$/ },
   { method: 'GET', pattern: /^\/stats\/timeseries$/ },
+  // Performance (latency, TTFT, retries, errors) and the per-turn waterfall.
+  { method: 'GET', pattern: /^\/stats\/performance$/ },
   { method: 'GET', pattern: /^\/turns$/ },
+  { method: 'GET', pattern: new RegExp(`^/turns/${ID}/trace$`) },
   { method: 'GET', pattern: /^\/threads$/ },
   { method: 'GET', pattern: new RegExp(`^/threads/${THREAD}$`) },
   { method: 'GET', pattern: /^\/unanswered$/ },
