@@ -9,6 +9,7 @@ import { LoginPage } from './pages/Login';
 import { OverviewPage } from './pages/Overview';
 import { SitePage } from './pages/Site';
 import { RevaultPage } from './pages/Revault';
+import { LoodgieterPage } from './pages/Loodgieter';
 import { AskRuudPage } from './pages/AskRuud';
 
 export function App() {
@@ -27,6 +28,7 @@ export function App() {
         <Route path="/inbox" element={<InboxPage />} />
         <Route path="/funds" element={<FundsPage />} />
         <Route path="/revault" element={<RevaultPage />} />
+        <Route path="/loodgieter" element={<LoodgieterPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

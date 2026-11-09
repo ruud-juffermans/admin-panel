@@ -37,7 +37,7 @@ export function ShareTable({
             <th scope="col">{labelHeader}</th>
             <th scope="col" aria-label="share" />
             <th scope="col" className="num">Views</th>
-            <th scope="col" className="num">Share</th>
+            <th scope="col" className="num">Share of total</th>
           </tr>
         </thead>
         <tbody>
@@ -100,8 +100,8 @@ export function ShareTable({
 }
 
 const Label = styled.span`
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.84rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
   overflow-wrap: anywhere;
 `;
 
@@ -118,7 +118,7 @@ const Toggle = styled.button`
   color: var(--app-text-primary);
 
   &:hover {
-    color: var(--app-red);
+    color: var(--accent-text);
   }
 `;
 
@@ -131,12 +131,13 @@ const Chevron = styled.span<{ $open: boolean }>`
 `;
 
 const Count = styled.span`
-  font-size: 0.72rem;
+  font-size: var(--fs-11);
   font-weight: 600;
   color: var(--app-text-muted);
-  background: var(--app-gray-100);
-  border-radius: 999px;
-  padding: 0 7px;
+  background: var(--status-neutral-fill);
+  border-radius: var(--radius-1);
+  padding: 0 6px;
+  font-variant-numeric: tabular-nums;
 `;
 
 const ChildRow = styled.tr`
@@ -150,17 +151,17 @@ const ChildRow = styled.tr`
 
 const Bar = styled.div`
   width: 100%;
-  min-width: 90px;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--app-gray-100);
+  min-width: 72px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--meter-track);
   overflow: hidden;
 `;
 
 const Fill = styled.div<{ $soft?: boolean }>`
   height: 100%;
-  border-radius: 0 4px 4px 0;
-  background: var(--viz-1);
+  border-radius: 0 3px 3px 0;
+  background: var(--chart-1);
   opacity: ${({ $soft }) => ($soft ? 0.55 : 1)};
   transition: width 0.3s ease;
 `;

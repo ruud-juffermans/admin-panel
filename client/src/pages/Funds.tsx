@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useFunds, useFundsMutations } from '../api/queries';
 import type { FundsProvider, LlmProviderId } from '../api/types';
 import { StatTile } from '../components/StatTile';
+import { StatusGlyph } from '../components/icons';
 import { Alert, Badge, Button, Card, CardHead, Empty, Input, Lead, Muted, Page, PageHeader, SectionTitle, Skeleton, Table, TableWrap, Tiles, Title } from '../components/ui';
 import { fmtDateTime } from '../format';
 import { fmtUsd, Stack } from './askruud/shared';
@@ -90,7 +91,10 @@ export function FundsPage() {
                       <Muted>{p.model || '—'}</Muted>
                     </td>
                     <td className="num">
-                      <b style={{ color: p.low ? 'var(--app-red-text)' : undefined }}>{p.remaining_usd === null ? '—' : fmtUsd(p.remaining_usd, 2)}</b>
+                      <Remaining $tone={p.low ? (p.active ? 'bad' : 'warn') : null}>
+                        {p.low && <StatusGlyph glyph={p.active ? 'diamond' : 'tri'} title="low" />}
+                        <b>{p.remaining_usd === null ? '—' : fmtUsd(p.remaining_usd, 2)}</b>
+                      </Remaining>
                     </td>
                     <td>{sourceBadge(p)}</td>
                     <td className="num">{fmtUsd(p.spend.today_usd)}</td>
@@ -273,7 +277,7 @@ const Form = styled.form`
 const Select = styled.select`
   min-height: 36px;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-2);
   border: 1.5px solid var(--app-input-border);
   background: var(--app-bg);
   color: var(--app-text-primary);
@@ -281,7 +285,19 @@ const Select = styled.select`
 
   &:focus-visible {
     outline: 2px solid transparent;
-    border-color: var(--app-red);
-    box-shadow: 0 0 0 3px var(--app-red-muted);
+    border-color: var(--accent);
+    box-shadow: var(--focus-ring);
+  }
+`;
+
+const Remaining = styled.span<{ $tone: 'bad' | 'warn' | null }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  color: ${({ $tone }) => ($tone ? `var(--status-${$tone}-text)` : 'inherit')};
+
+  b {
+    color: inherit;
   }
 `;

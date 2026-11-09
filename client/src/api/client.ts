@@ -20,8 +20,16 @@ export function onUnauthorized(listener: UnauthorizedListener): () => void {
   return () => unauthorizedListeners.delete(listener);
 }
 
+// Dev-only fixtures (`VITE_MOCK_API=1 npm run dev`): see mock.ts. The DEV
+// guard lets the production build drop the module entirely.
+const useMock = import.meta.env.DEV && import.meta.env.VITE_MOCK_API === '1';
+
 export async function request<T>(path: string, init?: RequestInit & { silent401?: boolean }): Promise<T> {
   const { silent401, ...rest } = init ?? {};
+  if (useMock) {
+    const { mockRequest } = await import('./mock');
+    return mockRequest<T>(path, rest);
+  }
   const res = await fetch(`${base}${path}`, {
     ...rest,
     credentials: 'same-origin',

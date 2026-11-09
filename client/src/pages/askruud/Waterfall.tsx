@@ -135,14 +135,14 @@ const Label = styled.div`
 
 const Track = styled.div`
   position: relative;
-  height: 12px;
-  border-radius: 6px;
-  background: var(--app-gray-100);
+  height: 10px;
+  border-radius: 2px;
+  background: var(--meter-track);
   overflow: hidden;
 `;
 
 const barColor = ({ $kind, $bad }: { $kind: TwinSpan['kind']; $bad: boolean }) =>
-  $bad ? 'var(--app-red)' : $kind === 'model' ? 'var(--viz-1)' : $kind === 'tool' ? 'var(--viz-2)' : 'var(--viz-axis)';
+  $bad ? 'var(--status-bad-mark)' : $kind === 'model' ? 'var(--chart-1)' : $kind === 'tool' ? 'var(--chart-2)' : 'var(--status-neutral-mark)';
 
 const Bar = styled.div<{ $kind: TwinSpan['kind']; $bad: boolean }>`
   position: absolute;

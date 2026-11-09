@@ -4,6 +4,7 @@ import { useTwinApprovals, useTwinMutations } from '../../api/queries';
 import type { TwinApproval, TwinApprovalResult } from '../../api/types';
 import { TwinData } from '../../components/TwinState';
 import { Alert, Badge, Button, ButtonRow, Card, CardHead, Empty, Muted, SectionTitle } from '../../components/ui';
+import { StatusGlyph } from '../../components/icons';
 import { Meta, Mono, Quote, Stack } from './shared';
 
 // Pending high-risk actions (draft_contact_message) with approve / reject and
@@ -72,7 +73,10 @@ function ApprovalCard({ approval, onDecided }: { approval: TwinApproval; onDecid
   return (
     <Pending>
       <Meta>
-        <Badge $tone="amber">needs approval</Badge>
+        <Badge $tone="bad">
+                  <StatusGlyph glyph="diamond" />
+                  needs approval
+                </Badge>
         <span>thread</span>
         <Mono>{approval.thread_id}</Mono>
       </Meta>
@@ -120,9 +124,10 @@ const Pending = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  border: 1px solid var(--app-amber);
-  border-radius: 14px;
-  background: var(--app-amber-muted);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-3);
+  background: var(--app-surface);
+  box-shadow: inset 3px 0 0 var(--status-bad-mark);
 `;
 
 const Decided = styled.div`
@@ -131,7 +136,7 @@ const Decided = styled.div`
   gap: 6px;
   padding: 12px;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
+  border-radius: var(--radius-3);
 `;
 
 const Label = styled.div`
@@ -153,7 +158,7 @@ const Draft = styled.div`
     grid-template-columns: max-content 1fr;
     gap: 4px 14px;
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-2);
     background: var(--app-surface-elevated);
     border: 1px solid var(--app-border-soft);
     font-size: 0.9rem;
@@ -175,7 +180,7 @@ const NoteInput = styled.textarea`
   width: 100%;
   resize: vertical;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-2);
   border: 1.5px solid var(--app-input-border);
   background: var(--app-bg);
   color: var(--app-text-primary);
@@ -187,7 +192,7 @@ const NoteInput = styled.textarea`
 
   &:focus-visible {
     outline: 2px solid transparent;
-    border-color: var(--app-red);
-    box-shadow: 0 0 0 3px var(--app-red-muted);
+    border-color: var(--accent);
+    box-shadow: var(--focus-ring);
   }
 `;

@@ -7,7 +7,7 @@ import { TwinData } from '../../components/TwinState';
 import { Badge, Card, CardHead, Grid, Muted, SectionTitle, Table, TableWrap, Tiles } from '../../components/ui';
 import { fmtDateTime, fmtDay, fmtNumber } from '../../format';
 import { rangeLabel, useRange } from '../../range';
-import { fmtMs, fmtPct, fmtUsd, MixBars, Mono, Stack } from './shared';
+import { fmtMs, fmtPct, fmtUsd, MixBars, Mono, Stack, OUTCOME_STYLE } from './shared';
 
 // Headline twin numbers for the range, the outcome mix, turns and refusals
 // per day, and the knowledge-base sync status.
@@ -45,10 +45,10 @@ export function TwinOverviewTab() {
             {(o) => (
               <MixBars
                 rows={[
-                  { label: 'answered', count: o.window.outcomes.answered, color: 'var(--viz-1)' },
-                  { label: 'refused', count: o.window.outcomes.refused, color: 'var(--viz-2)' },
-                  { label: 'ended pending approval', count: o.window.outcomes.pending_approval, color: 'var(--app-amber)' },
-                  { label: 'error', count: o.window.outcomes.error, color: 'var(--app-red)' },
+                  { label: 'answered', count: o.window.outcomes.answered, color: OUTCOME_STYLE.answered!.mark, glyph: OUTCOME_STYLE.answered!.glyph },
+                  { label: 'ended pending approval', count: o.window.outcomes.pending_approval, color: OUTCOME_STYLE.pending_approval!.mark, glyph: OUTCOME_STYLE.pending_approval!.glyph },
+                  { label: 'refused', count: o.window.outcomes.refused, color: OUTCOME_STYLE.refused!.mark, glyph: OUTCOME_STYLE.refused!.glyph },
+                  { label: 'error', count: o.window.outcomes.error, color: OUTCOME_STYLE.error!.mark, glyph: OUTCOME_STYLE.error!.glyph },
                 ]}
               />
             )}
@@ -106,9 +106,9 @@ export function TwinOverviewTab() {
                       );
                     }}
                   />
-                  <Legend verticalAlign="top" align="right" iconType="plainline" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} />
-                  <Line type="monotone" dataKey="turns" name="Turns" stroke="var(--viz-1)" strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line type="monotone" dataKey="refusals" name="Refusals" stroke="var(--viz-2)" strokeWidth={2} strokeDasharray="5 3" dot={false} isAnimationActive={false} />
+                  <Legend verticalAlign="top" align="right" iconType="plainline" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} formatter={(value: string) => <span style={{ color: 'var(--app-text-secondary)' }}>{value}</span>} />
+                  <Line type="monotone" dataKey="turns" name="Turns" stroke="var(--chart-1)" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+                  <Line type="monotone" dataKey="refusals" name="Refusals" stroke="var(--status-warn-mark)" strokeWidth={1.5} strokeDasharray="6 4" dot={false} isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartWrap>
@@ -176,11 +176,11 @@ const ChartWrap = styled.div`
 const Tip = styled.div`
   background: var(--app-surface-elevated);
   border: 1px solid var(--app-border);
-  border-radius: 10px;
+  border-radius: var(--radius-2);
   padding: 6px 10px;
   font-size: 0.82rem;
   color: var(--app-text-secondary);
-  box-shadow: 0 8px 24px rgba(11, 17, 32, 0.12);
+  box-shadow: var(--shadow-2);
 
   b {
     color: var(--app-text-primary);

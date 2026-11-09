@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import styled from 'styled-components';
 import { useSettings, useTwinPerformance } from '../../api/queries';
 import type { TwinPerformanceWindow } from '../../api/types';
@@ -73,10 +73,10 @@ export function PerformanceTab() {
                       );
                     }}
                   />
-                  <Legend verticalAlign="top" align="right" iconType="plainline" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} />
-                  <Line type="monotone" dataKey="latency_p95_ms" name="Total p95" stroke="var(--viz-1)" strokeWidth={2} strokeDasharray="5 3" dot={false} connectNulls isAnimationActive={false} />
-                  <Line type="monotone" dataKey="latency_p50_ms" name="Total p50" stroke="var(--viz-1)" strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />
-                  <Line type="monotone" dataKey="ttft_p50_ms" name="First token p50" stroke="var(--viz-2)" strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />
+                  <Legend verticalAlign="top" align="right" iconType="plainline" wrapperStyle={{ fontSize: 12, paddingBottom: 8 }} formatter={(value: string) => <span style={{ color: 'var(--app-text-secondary)' }}>{value}</span>} />
+                  <Line type="monotone" dataKey="latency_p95_ms" name="Total p95" stroke="var(--chart-1)" strokeWidth={1.5} strokeDasharray="6 4" dot={false} connectNulls isAnimationActive={false} />
+                  <Line type="monotone" dataKey="latency_p50_ms" name="Total p50" stroke="var(--chart-1)" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} />
+                  <Line type="monotone" dataKey="ttft_p50_ms" name="First token p50" stroke="var(--chart-2)" strokeWidth={1.5} dot={false} connectNulls isAnimationActive={false} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartWrap>
@@ -280,11 +280,11 @@ const ChartWrap = styled.div`
 const Tip = styled.div`
   background: var(--app-surface-elevated);
   border: 1px solid var(--app-border);
-  border-radius: 10px;
+  border-radius: var(--radius-2);
   padding: 6px 10px;
   font-size: 0.82rem;
   color: var(--app-text-secondary);
-  box-shadow: 0 8px 24px rgba(11, 17, 32, 0.12);
+  box-shadow: var(--shadow-2);
 
   b {
     color: var(--app-text-primary);

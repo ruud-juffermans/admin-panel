@@ -144,7 +144,8 @@ export function EvalsTab() {
 
 const RunRow = styled.tr<{ $active: boolean }>`
   td {
-    background: ${({ $active }) => ($active ? 'var(--app-red-muted)' : 'transparent')};
+    background: ${({ $active }) => ($active ? 'var(--row-selected-bg)' : 'transparent')};
+    box-shadow: ${({ $active }) => ($active ? 'inset 2px 0 0 var(--accent)' : 'none')};
   }
 `;
 

@@ -1,6 +1,7 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { analytics, contact, funds, newsletter, settings } from './website';
-import type { ContactStatus, LlmProviderId } from './types';
+import type { ContactStatus, LlmProviderId, SiteId } from './types';
+import { DEFAULT_SITE } from './types';
 
 // Data is "fresh on reload" (PRD §3): no background polling, short stale window
 // so page switches reuse what was just fetched.
@@ -10,14 +11,15 @@ export const queryClient = new QueryClient({
   },
 });
 
-export const useOverview = (days: number) =>
-  useQuery({ queryKey: ['analytics', 'overview', days], queryFn: () => analytics.overview(days) });
-export const useTimeseries = (days: number) =>
-  useQuery({ queryKey: ['analytics', 'timeseries', days], queryFn: () => analytics.timeseries(days) });
-export const useTopPages = (days: number) =>
-  useQuery({ queryKey: ['analytics', 'top-pages', days], queryFn: () => analytics.topPages(days) });
-export const useTopReferrers = (days: number) =>
-  useQuery({ queryKey: ['analytics', 'top-referrers', days], queryFn: () => analytics.topReferrers(days) });
+// Page views of one website (default the portfolio); see api/types.ts SiteId.
+export const useOverview = (days: number, site: SiteId = DEFAULT_SITE) =>
+  useQuery({ queryKey: ['analytics', site, 'overview', days], queryFn: () => analytics.overview(days, site) });
+export const useTimeseries = (days: number, site: SiteId = DEFAULT_SITE) =>
+  useQuery({ queryKey: ['analytics', site, 'timeseries', days], queryFn: () => analytics.timeseries(days, site) });
+export const useTopPages = (days: number, site: SiteId = DEFAULT_SITE) =>
+  useQuery({ queryKey: ['analytics', site, 'top-pages', days], queryFn: () => analytics.topPages(days, site) });
+export const useTopReferrers = (days: number, site: SiteId = DEFAULT_SITE) =>
+  useQuery({ queryKey: ['analytics', site, 'top-referrers', days], queryFn: () => analytics.topReferrers(days, site) });
 
 // Alert thresholds from the server's .env; they change on deploy only.
 export const useSettings = () => useQuery({ queryKey: ['settings'], queryFn: settings.get, staleTime: Infinity });

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { fillDays, normalisePath, referrerHost, referrerKind, sectionOf } from './analytics.js';
+import { fillDays, normalisePath, referrerHost, referrerKind, sectionLabel, sectionOf } from './analytics.js';
 
 describe('normalisePath', () => {
   it('drops locale prefix, query, hash and trailing slash', () => {
@@ -25,6 +25,24 @@ describe('sectionOf', () => {
     assert.equal(sectionOf('/about'), 'about');
     assert.equal(sectionOf('/contact/'), 'contact');
     assert.equal(sectionOf('/privacy'), 'other');
+  });
+  it('uses the sections of the given site', () => {
+    assert.equal(sectionOf('/', 'loodgieterjuffermans.nl'), 'home');
+    assert.equal(sectionOf('/diensten/zinkwerk', 'loodgieterjuffermans.nl'), 'diensten');
+    assert.equal(sectionOf('/regio/haarlem/', 'loodgieterjuffermans.nl'), 'regio');
+    assert.equal(sectionOf('/galerij', 'loodgieterjuffermans.nl'), 'galerij');
+    assert.equal(sectionOf('/privacy', 'loodgieterjuffermans.nl'), 'other');
+    // The portfolio's sections do not leak into another site.
+    assert.equal(sectionOf('/projects', 'loodgieterjuffermans.nl'), 'other');
+  });
+});
+
+describe('sectionLabel', () => {
+  it('labels known sections per site and falls back to the key', () => {
+    assert.equal(sectionLabel('projects'), 'Projects');
+    assert.equal(sectionLabel('diensten', 'loodgieterjuffermans.nl'), 'Diensten');
+    assert.equal(sectionLabel('other', 'loodgieterjuffermans.nl'), 'Overig');
+    assert.equal(sectionLabel('mystery'), 'mystery');
   });
 });
 
@@ -60,6 +78,12 @@ describe('referrerKind', () => {
   it('does not match look-alike hosts', () => {
     assert.equal(referrerKind('notgithub.com'), 'other');
     assert.equal(referrerKind('google.com.evil.io'), 'other');
+  });
+  it('treats only the given site (and dev hosts) as internal', () => {
+    assert.equal(referrerKind('www.loodgieterjuffermans.nl', 'loodgieterjuffermans.nl'), 'internal');
+    assert.equal(referrerKind('ruudjuffermans.nl', 'loodgieterjuffermans.nl'), 'other');
+    assert.equal(referrerKind('loodgieterjuffermans.nl'), 'other');
+    assert.equal(referrerKind('localhost', 'loodgieterjuffermans.nl'), 'internal');
   });
 });
 

@@ -70,12 +70,11 @@ const Card = styled.form`
   padding: 28px 24px;
   background: var(--app-surface-elevated);
   border: 1px solid var(--app-border);
-  border-radius: 18px;
-  box-shadow: 0 1px 2px rgba(11, 17, 32, 0.04), 0 12px 32px rgba(11, 17, 32, 0.06);
+  border-radius: var(--radius-3);
 
   h1 {
     margin: -6px 0 4px;
-    font-size: 1.6rem;
+    font-size: var(--fs-24);
   }
 `;
 
@@ -84,21 +83,21 @@ const Brand = styled.div`
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  font-family: 'Bricolage Grotesque Variable', Georgia, serif;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 
   b {
-    color: var(--app-red);
+    font-weight: 400;
+    color: var(--app-text-secondary);
   }
 `;
 
 const Dot = styled.span`
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--app-red);
-  box-shadow: 0 0 0 4px var(--app-red-muted);
+  background: var(--brand);
 `;
 
 const Field = styled.div`
@@ -107,7 +106,7 @@ const Field = styled.div`
   gap: 6px;
 
   label {
-    font-size: 0.85rem;
+    font-size: var(--fs-12);
     font-weight: 600;
     color: var(--app-text-secondary);
   }

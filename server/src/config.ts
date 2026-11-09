@@ -1,5 +1,6 @@
 // All configuration comes from the environment (.env in dev, Dokploy's
 // Environment tab in production). Anything secret is read here and nowhere else.
+import { SITE_ORIGINS } from './website/sites.js';
 
 function int(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -36,9 +37,10 @@ export const config = {
   // Secure cookies in production (behind Traefik with TLS); plain http in dev.
   cookieSecure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === 'true' : isProd,
 
-  // The portfolio site: the only cross-origin caller of the public routes.
+  // The websites that call the public routes cross-origin: every site in
+  // website/sites.ts (their beacons) plus whatever CORS_ORIGIN adds.
   websiteUrl,
-  corsOrigins: list('CORS_ORIGIN', [websiteUrl, 'http://localhost:3000', 'http://localhost:3005'].join(',')),
+  corsOrigins: [...new Set([...list('CORS_ORIGIN', [websiteUrl, 'http://localhost:3000', 'http://localhost:3005'].join(',')), ...SITE_ORIGINS])],
 
   // Contact form delivery and newsletter signups (copied from the platform server).
   contactEmail: process.env.CONTACT_EMAIL ?? 'ruudjuffermans@pm.me',

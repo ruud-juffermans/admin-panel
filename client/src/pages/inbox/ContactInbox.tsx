@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { StatusGlyph } from '../../components/icons';
 import { useOverlayDialog } from '../../components/useOverlayDialog';
 import styled from 'styled-components';
 import { useContactList, useContactMutations, useContactStats } from '../../api/queries';
@@ -15,7 +16,8 @@ const FILTERS: Array<{ value: Filter; label: string }> = [
   { value: 'all', label: 'All' },
 ];
 
-const STATUS_TONE: Record<ContactStatus, 'red' | 'green' | 'muted'> = { new: 'red', responded: 'green', archived: 'muted' };
+const STATUS_TONE: Record<ContactStatus, 'warn' | 'ok' | 'neutral'> = { new: 'warn', responded: 'ok', archived: 'neutral' };
+const STATUS_GLYPH: Record<ContactStatus, 'tri' | 'dot' | 'slash'> = { new: 'tri', responded: 'dot', archived: 'slash' };
 
 // Contact-form submissions: status tabs, a list, and a detail pane with the
 // new → responded → archived workflow, a mailto reply link and delete.
@@ -82,7 +84,10 @@ export function ContactInbox() {
               <RowMeta>
                 <span>{s.email}</span>
                 {s.company && <span>· {s.company}</span>}
-                <Badge $tone={STATUS_TONE[s.status]}>{s.status}</Badge>
+                <Badge $tone={STATUS_TONE[s.status]}>
+                  <StatusGlyph glyph={STATUS_GLYPH[s.status]} />
+                  {s.status}
+                </Badge>
                 {s.status === 'new' && <Badge $tone="amber">waiting {ageOf(s.createdAt)}</Badge>}
               </RowMeta>
               <RowPreview>{s.message}</RowPreview>
@@ -128,7 +133,10 @@ function Detail({ submission: s, onClose, onDeleted }: { submission: ContactSubm
           </DetailMeta>
           <DetailMeta>
             <Muted>{fmtDateTime(s.createdAt)}</Muted>
-            <Badge $tone={STATUS_TONE[s.status]}>{s.status}</Badge>
+            <Badge $tone={STATUS_TONE[s.status]}>
+                  <StatusGlyph glyph={STATUS_GLYPH[s.status]} />
+                  {s.status}
+                </Badge>
           </DetailMeta>
         </div>
         <CloseButton type="button" onClick={onClose} aria-label="Close">
@@ -203,7 +211,7 @@ const ListCard = styled(Card)`
 
 const DetailCard = styled(Card)<{ $open: boolean }>`
   position: sticky;
-  top: 70px;
+  top: calc(var(--shell-top) + 16px);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -238,13 +246,14 @@ const RowButton = styled.button<{ $active: boolean }>`
   width: 100%;
   text-align: left;
   padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid ${({ $active }) => ($active ? 'var(--app-red)' : 'transparent')};
-  background: ${({ $active }) => ($active ? 'var(--app-red-muted)' : 'transparent')};
+  border-radius: var(--radius-2);
+  border: 1px solid transparent;
+  background: ${({ $active }) => ($active ? 'var(--row-selected-bg)' : 'transparent')};
+  box-shadow: ${({ $active }) => ($active ? 'inset 2px 0 0 var(--accent)' : 'none')};
   cursor: pointer;
 
   &:hover {
-    background: ${({ $active }) => ($active ? 'var(--app-red-muted)' : 'var(--app-gray-50)')};
+    background: ${({ $active }) => ($active ? 'var(--row-selected-bg)' : 'var(--app-gray-50)')};
   }
 `;
 
@@ -306,7 +315,7 @@ const CloseButton = styled.button`
   align-self: flex-start;
   min-width: 40px;
   min-height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius-2);
 
   &:hover {
     background: var(--app-gray-100);
@@ -320,7 +329,7 @@ const Message = styled.p`
   overflow-wrap: anywhere;
   line-height: 1.6;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-3);
   background: var(--app-surface);
   border: 1px solid var(--app-border-soft);
 `;

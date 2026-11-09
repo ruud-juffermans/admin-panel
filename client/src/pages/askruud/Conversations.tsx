@@ -390,13 +390,14 @@ const RowButton = styled.button<{ $active: boolean }>`
   width: 100%;
   text-align: left;
   padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid ${({ $active }) => ($active ? 'var(--app-red)' : 'transparent')};
-  background: ${({ $active }) => ($active ? 'var(--app-red-muted)' : 'transparent')};
+  border-radius: var(--radius-2);
+  border: 1px solid transparent;
+  background: ${({ $active }) => ($active ? 'var(--row-selected-bg)' : 'transparent')};
+  box-shadow: ${({ $active }) => ($active ? 'inset 2px 0 0 var(--accent)' : 'none')};
   cursor: pointer;
 
   &:hover {
-    background: ${({ $active }) => ($active ? 'var(--app-red-muted)' : 'var(--app-gray-50)')};
+    background: ${({ $active }) => ($active ? 'var(--row-selected-bg)' : 'var(--app-gray-50)')};
   }
 `;
 
@@ -418,7 +419,7 @@ const Question = styled.span`
 
 const DetailCard = styled(Card)<{ $open: boolean }>`
   position: sticky;
-  top: 70px;
+  top: calc(var(--shell-top) + 16px);
 
   @media (max-width: 860px) {
     position: fixed;
@@ -446,7 +447,7 @@ const CloseButton = styled.button`
   align-self: flex-start;
   min-width: 40px;
   min-height: 40px;
-  border-radius: 10px;
+  border-radius: var(--radius-2);
 
   &:hover {
     background: var(--app-gray-100);
@@ -486,11 +487,11 @@ const Bubble = styled.div<{ $who: 'visitor' | 'twin'; $outcome?: string }>`
   max-width: 92%;
   align-self: ${({ $who }) => ($who === 'visitor' ? 'flex-end' : 'flex-start')};
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-3);
   border-bottom-right-radius: ${({ $who }) => ($who === 'visitor' ? '4px' : '14px')};
   border-bottom-left-radius: ${({ $who }) => ($who === 'twin' ? '4px' : '14px')};
-  background: ${({ $who }) => ($who === 'visitor' ? 'var(--app-red-muted)' : 'var(--app-surface)')};
-  border: 1px solid ${({ $who, $outcome }) => ($who === 'twin' && $outcome === 'refused' ? 'var(--app-amber)' : 'var(--app-border-soft)')};
+  background: ${({ $who }) => ($who === 'visitor' ? 'var(--accent-muted)' : 'var(--app-surface)')};
+  border: 1px solid ${({ $who, $outcome }) => ($who === 'twin' && $outcome === 'refused' ? 'var(--status-warn-border)' : 'var(--app-border-soft)')};
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font-size: 0.92rem;
@@ -513,7 +514,7 @@ const ExpandButton = styled.button`
   background: none;
   padding: 2px 0;
   min-height: 24px;
-  color: var(--app-red-text);
+  color: var(--accent-text);
   font-weight: 600;
   font-size: 0.78rem;
   cursor: pointer;

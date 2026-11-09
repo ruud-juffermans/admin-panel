@@ -56,7 +56,7 @@ const Row = styled.div`
   gap: 6px;
   padding: 12px;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
+  border-radius: var(--radius-3);
 `;
 const Top = styled.div`
   display: flex;

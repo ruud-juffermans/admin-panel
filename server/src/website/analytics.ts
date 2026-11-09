@@ -1,10 +1,11 @@
 // Pure helpers behind the admin analytics endpoints: how a page path maps to a
 // site section and how a referrer URL maps to a host + a recognisable source.
 // Kept free of Prisma so they are unit-testable (see analytics.test.ts).
+// Everything is per site: which sections exist and which hosts are "internal"
+// come from the registry in sites.ts.
+import { DEFAULT_SITE, SITES, type SiteId } from './sites.js';
 
-// The portfolio site's sections, in the order the dashboard lists them.
-export const SECTIONS = ['home', 'projects', 'blog', 'expertise', 'about', 'contact', 'other'] as const;
-export type Section = (typeof SECTIONS)[number];
+export type Section = string;
 
 const LOCALE_PREFIX = /^\/(nl|en)(?=\/|$)/;
 
@@ -18,24 +19,15 @@ export function normalisePath(path: string): string {
   return p === '' ? '/' : p;
 }
 
-export function sectionOf(path: string): Section {
+export function sectionOf(path: string, site: SiteId = DEFAULT_SITE): Section {
   const p = normalisePath(path);
   if (p === '/') return 'home';
   const head = p.split('/')[1] ?? '';
-  switch (head) {
-    case 'projects':
-      return 'projects';
-    case 'blog':
-      return 'blog';
-    case 'expertise':
-      return 'expertise';
-    case 'about':
-      return 'about';
-    case 'contact':
-      return 'contact';
-    default:
-      return 'other';
-  }
+  return SITES[site].sections[head] ?? 'other';
+}
+
+export function sectionLabel(section: Section, site: SiteId = DEFAULT_SITE): string {
+  return SITES[site].sectionLabels[section] ?? section;
 }
 
 // The referrer buckets the dashboard labels. "direct" = no referrer at all;
@@ -43,7 +35,8 @@ export function sectionOf(path: string): Section {
 export const REFERRER_KINDS = ['linkedin', 'github', 'google', 'udemy', 'internal', 'direct', 'other'] as const;
 export type ReferrerKind = (typeof REFERRER_KINDS)[number];
 
-const OWN_HOSTS = new Set(['ruudjuffermans.nl', 'localhost', '127.0.0.1']);
+// Dev hosts count as internal for every site.
+const DEV_HOSTS = new Set(['localhost', '127.0.0.1']);
 
 // Lower-cased host of a referrer URL without "www." or a port; "" when there is
 // no referrer. A referrer that is not a URL is returned as-is (lower-cased) so
@@ -63,7 +56,7 @@ function hostMatches(host: string, domains: string[]): boolean {
   return domains.some((d) => host === d || host.endsWith(`.${d}`));
 }
 
-export function referrerKind(host: string): ReferrerKind {
+export function referrerKind(host: string, site: SiteId = DEFAULT_SITE): ReferrerKind {
   let h = host.toLowerCase().replace(/^www\./, '');
   if (!h) return 'direct';
   // Android apps report a reverse-domain package ("android-app://com.linkedin.android");
@@ -74,7 +67,7 @@ export function referrerKind(host: string): ReferrerKind {
   if (hostMatches(h, ['github.com', 'github.io'])) return 'github';
   if (/^(.*\.)?google\.(com|[a-z]{2,3}|co\.[a-z]{2}|com\.[a-z]{2})$/.test(h) || h === 'googleusercontent.com') return 'google';
   if (hostMatches(h, ['udemy.com'])) return 'udemy';
-  if (OWN_HOSTS.has(h) || h.endsWith('.ruudjuffermans.nl')) return 'internal';
+  if (DEV_HOSTS.has(h) || hostMatches(h, SITES[site].hosts)) return 'internal';
   return 'other';
 }
 

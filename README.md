@@ -5,7 +5,10 @@ and the portfolio site's backend in one deployment:
 
 - **Public API** for the portfolio (same paths the platform server used to
   serve): `POST /api/website/contact`, `POST /api/website/newsletter`,
-  `POST /api/website/analytics` (page-view beacon).
+  `POST /api/website/analytics` (page-view beacon). The beacon is shared by
+  every site in `server/src/website/sites.ts` (ruudjuffermans.nl and
+  loodgieterjuffermans.nl); a view is attributed to a site by the request's
+  `Origin`, and each site gets its own tab in the panel.
 - **Login** for the one admin account configured in `.env`
   (`/auth/login`, `/auth/me`, `/auth/logout`; signed httpOnly cookie, 7 days).
 - **Admin API** at `/api/website/admin/*`: contact inbox, newsletter
@@ -66,7 +69,7 @@ bcrypt `ADMIN_PASSWORD_HASH` and a `SESSION_SECRET` of at least 32 characters.
 
 | Variable | Purpose |
 | --- | --- |
-| `WEBSITE_URL`, `CORS_ORIGIN` | Origins allowed to call the public routes cross-origin |
+| `WEBSITE_URL`, `CORS_ORIGIN` | Extra origins allowed to call the public routes cross-origin (every site's origins in `server/src/website/sites.ts` are always allowed) |
 | `CONTACT_EMAIL`, `MAIL_FROM`, `SMTP_*` | Contact-form delivery (console fallback without `SMTP_HOST`) |
 | `NEWSLETTER_API_KEY` | Buttondown; `placeholder` keeps signups local only |
 | `TWIN_API_URL`, `TWIN_ADMIN_TOKEN` | The twin's admin API; the token never reaches the browser |

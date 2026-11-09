@@ -46,12 +46,18 @@ export interface Funds {
 
 // ── site analytics ───────────────────────────────────────────────────────────
 
+// The websites whose page views live in the panel's own table
+// (server/src/website/sites.ts). revault.nl is proxied instead, see revault.ts.
+export type SiteId = 'ruudjuffermans.nl' | 'loodgieterjuffermans.nl';
+export const DEFAULT_SITE: SiteId = 'ruudjuffermans.nl';
+
 export interface LocaleCount {
   locale: string;
   count: number;
 }
 
 export interface AnalyticsOverview {
+  site: SiteId;
   days: number;
   since: string;
   until: string;
@@ -66,7 +72,9 @@ export interface TimeseriesPoint {
   locales: Record<string, number>;
 }
 
-export type Section = 'home' | 'projects' | 'blog' | 'expertise' | 'about' | 'contact' | 'other';
+// Section keys are per site ('home' and 'other' always exist); the server
+// sends the display label with each section.
+export type Section = string;
 
 export interface TopPage {
   path: string;
@@ -76,6 +84,7 @@ export interface TopPage {
 
 export interface PageSection {
   section: Section;
+  label: string;
   count: number;
   pages: TopPage[];
 }

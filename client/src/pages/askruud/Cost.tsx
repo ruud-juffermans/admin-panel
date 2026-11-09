@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import styled from 'styled-components';
 import { useTwinBudget, useTwinOverview } from '../../api/queries';
 import { StatTile } from '../../components/StatTile';
@@ -82,8 +82,12 @@ export function CostTab() {
                       );
                     }}
                   />
-                  {limit > 0 && <ReferenceLine y={limit} stroke="var(--app-red)" strokeDasharray="4 4" label={{ value: 'cap', fill: 'var(--app-text-muted)', fontSize: 11, position: 'insideTopRight' }} />}
-                  <Bar dataKey="spent" fill="var(--viz-1)" radius={[4, 4, 0, 0]} maxBarSize={24} isAnimationActive={false} />
+                  {limit > 0 && <ReferenceLine y={limit} stroke="var(--status-bad-mark)" strokeDasharray="6 4" label={{ value: 'daily cap', fill: 'var(--app-text-muted)', fontSize: 11, position: 'insideTopRight' }} />}
+                  <Bar dataKey="spent" fill="var(--chart-1)" radius={[2, 2, 0, 0]} maxBarSize={20} isAnimationActive={false}>
+                    {chartData.map((d) => (
+                      <Cell key={d.day} fill={limit > 0 && d.spent >= limit ? 'var(--status-bad-mark)' : 'var(--chart-1)'} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </ChartWrap>
@@ -140,8 +144,8 @@ const ChartWrap = styled.div`
 const Tip = styled.div`
   background: var(--app-surface-elevated);
   border: 1px solid var(--app-border);
-  border-radius: 10px;
+  border-radius: var(--radius-2);
   padding: 6px 10px;
   font-size: 0.82rem;
-  box-shadow: 0 8px 24px rgba(11, 17, 32, 0.12);
+  box-shadow: var(--shadow-2);
 `;

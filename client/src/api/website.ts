@@ -14,8 +14,10 @@ import type {
   NewsletterSubscriber,
   PageSection,
   ReferrerHost,
+  SiteId,
   TimeseriesPoint,
 } from './types';
+import { DEFAULT_SITE } from './types';
 
 const ADMIN = '/api/website/admin';
 
@@ -39,13 +41,15 @@ export const funds = {
   removeTopup: (id: string) => del<{ ok: true }>(`${ADMIN}/funds/topups/${encodeURIComponent(id)}`),
 };
 
+// Page views per website; `site` picks which one (default the portfolio).
 export const analytics = {
-  overview: (days: number) => get<AnalyticsOverview>(`${ADMIN}/analytics/overview${qs({ days })}`),
-  timeseries: (days: number) => get<{ series: TimeseriesPoint[] }>(`${ADMIN}/analytics/timeseries${qs({ days })}`),
-  topPages: (days: number, limit = 200) =>
-    get<{ sections: PageSection[] }>(`${ADMIN}/analytics/top-pages${qs({ days, limit, group: 'section' })}`),
-  topReferrers: (days: number, limit = 100) =>
-    get<{ referrers: ReferrerHost[] }>(`${ADMIN}/analytics/top-referrers${qs({ days, limit, group: 'host' })}`),
+  overview: (days: number, site: SiteId = DEFAULT_SITE) => get<AnalyticsOverview>(`${ADMIN}/analytics/overview${qs({ days, site })}`),
+  timeseries: (days: number, site: SiteId = DEFAULT_SITE) =>
+    get<{ series: TimeseriesPoint[] }>(`${ADMIN}/analytics/timeseries${qs({ days, site })}`),
+  topPages: (days: number, site: SiteId = DEFAULT_SITE, limit = 200) =>
+    get<{ sections: PageSection[] }>(`${ADMIN}/analytics/top-pages${qs({ days, site, limit, group: 'section' })}`),
+  topReferrers: (days: number, site: SiteId = DEFAULT_SITE, limit = 100) =>
+    get<{ referrers: ReferrerHost[] }>(`${ADMIN}/analytics/top-referrers${qs({ days, site, limit, group: 'host' })}`),
 };
 
 export const contact = {

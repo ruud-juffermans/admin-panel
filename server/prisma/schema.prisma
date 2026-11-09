@@ -48,6 +48,9 @@ model NewsletterSubscriber {
 
 model PageView {
   id        String   @id @default(cuid())
+  // Which website the view belongs to (src/website/sites.ts). Rows from before
+  // the column existed are the portfolio's, hence the default.
+  site      String   @default("ruudjuffermans.nl")
   path      String
   locale    String?
   referrer  String?
@@ -55,6 +58,7 @@ model PageView {
 
   @@index([path])
   @@index([createdAt])
+  @@index([site, createdAt])
   @@map("page_views")
   @@schema("website")
 }

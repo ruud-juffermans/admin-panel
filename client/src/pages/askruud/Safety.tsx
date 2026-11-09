@@ -48,8 +48,8 @@ export function SafetyTab() {
             {(data) => (
               <MixBars
                 rows={[
-                  { label: 'thumbs up', count: data.items.filter((f) => f.verdict === 'up').length, color: 'var(--app-green)' },
-                  { label: 'thumbs down', count: data.items.filter((f) => f.verdict === 'down').length, color: 'var(--app-red)' },
+                  { label: 'thumbs up', count: data.items.filter((f) => f.verdict === 'up').length, color: 'var(--status-ok-mark)', glyph: 'dot' as const },
+                  { label: 'thumbs down', count: data.items.filter((f) => f.verdict === 'down').length, color: 'var(--status-bad-mark)', glyph: 'diamond' as const },
                 ]}
               />
             )}
@@ -189,7 +189,7 @@ const Item = styled.div`
   gap: 8px;
   padding: 12px;
   border: 1px solid var(--app-border);
-  border-radius: 12px;
+  border-radius: var(--radius-3);
 `;
 
 const Answer = styled.p`

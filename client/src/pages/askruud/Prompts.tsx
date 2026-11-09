@@ -72,7 +72,7 @@ function VisitorPrompts() {
   }, [items]);
 
   const topics = useMemo(() => {
-    const colors = ['var(--viz-1)', 'var(--viz-2)', 'var(--app-green)', 'var(--app-amber)', 'var(--app-red)', 'var(--app-gray-400)'];
+    const colors = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-6)'];
     const counts = new Map<string, number>();
     for (const t of items) counts.set(topicOf(t.visitor_message!), (counts.get(topicOf(t.visitor_message!)) ?? 0) + 1);
     return [...TOPICS.map((t) => t.id), 'other'].map((id, i) => ({
@@ -260,7 +260,7 @@ function SystemPrompt() {
 const PromptText = styled.pre`
   margin: 12px 0 0;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-3);
   background: var(--app-surface);
   border: 1px solid var(--app-border-soft);
   white-space: pre-wrap;
