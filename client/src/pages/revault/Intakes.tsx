@@ -51,7 +51,11 @@ export function RevaultIntakes() {
     if (!list.data) return;
     if (selectedRef && intakes.some((i) => i.reference === selectedRef)) return;
     const wide = window.matchMedia('(min-width: 861px)').matches;
-    setSelectedRef(wide && intakes.length ? intakes[0]!.reference : null);
+    const next = wide && intakes.length ? intakes[0]!.reference : null;
+    // Only touch the URL when the selection changes: `intakes` is a new array
+    // every render, so an unconditional write here loops (and Chrome then
+    // blocks all navigation for seconds).
+    if (next !== selectedRef) setSelectedRef(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intakes, selectedRef, list.data]);
 

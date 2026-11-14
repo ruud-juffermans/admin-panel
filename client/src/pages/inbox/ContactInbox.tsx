@@ -51,7 +51,11 @@ export function ContactInbox() {
     if (!list.data) return;
     if (selectedId && submissions.some((s) => s.id === selectedId)) return;
     const wide = window.matchMedia('(min-width: 861px)').matches;
-    setSelectedId(wide && submissions.length ? submissions[0]!.id : null);
+    const next = wide && submissions.length ? submissions[0]!.id : null;
+    // Only touch the URL when the selection changes: `submissions` is a new
+    // array every render, so an unconditional write here loops (and Chrome
+    // then blocks all navigation for seconds).
+    if (next !== selectedId) setSelectedId(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submissions, selectedId, list.data]);
 

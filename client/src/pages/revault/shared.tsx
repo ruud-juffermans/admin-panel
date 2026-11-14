@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react';
 import { ApiError } from '../../api/client';
 import type { RevaultIntakeStatus } from '../../api/types';
-import { Alert, Skeleton, type Tone } from '../../components/ui';
+import type { Tone } from '../../components/ui';
 import type { Glyph } from '../../components/icons';
 
 // The Revault server is reached through the panel's proxy; a 502/503 from it
@@ -13,22 +12,6 @@ export function isRevaultUnavailable(err: unknown): boolean {
 export function revaultErrorMessage(err: unknown): string {
   if (isRevaultUnavailable(err)) return 'Revault unavailable — its server did not answer. The rest of the panel is unaffected.';
   return err instanceof Error ? err.message : 'Could not load Revault data.';
-}
-
-export function RevaultData<T>({
-  query,
-  height = 160,
-  children,
-}: {
-  query: { isPending: boolean; error: unknown; data: T | undefined };
-  height?: number;
-  children: (data: T) => ReactNode;
-}) {
-  if (query.isPending) return <Skeleton $h={height} />;
-  if (query.error || query.data === undefined) {
-    return <Alert $variant={isRevaultUnavailable(query.error) ? 'info' : 'error'}>{revaultErrorMessage(query.error)}</Alert>;
-  }
-  return <>{children(query.data)}</>;
 }
 
 // The intake workflow, in order: NEW → ASSESSED → VIABLE / NOT_VIABLE →

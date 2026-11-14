@@ -58,7 +58,11 @@ export function ConversationsTab() {
     if (!threads.data) return;
     if (selected && items.some((t) => t.thread_id === selected)) return;
     const wide = window.matchMedia('(min-width: 861px)').matches;
-    setSelected(wide && items.length ? items[0]!.thread_id : null);
+    const next = wide && items.length ? items[0]!.thread_id : null;
+    // Only touch the URL when the selection changes: `items` is a new array
+    // every render, so an unconditional write here loops (and Chrome then
+    // blocks all navigation for seconds).
+    if (next !== selected) setSelected(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, selected, threads.data]);
 

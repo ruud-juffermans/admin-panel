@@ -5,8 +5,9 @@ import type {
   RevaultIntakeStats,
   RevaultIntakeStatus,
   RevaultList,
+  PageSection,
+  ReferrerHost,
   RevaultNewsletterStats,
-  RevaultPathViews,
   RevaultSubscriber,
   TimeseriesPoint,
 } from './types';
@@ -28,8 +29,9 @@ export const revault = {
   unsubscribe: (id: string) => post<RevaultSubscriber>(`${BASE}/newsletter/${encodeURIComponent(id)}/unsubscribe`),
   removeSubscriber: (id: string) => del<{ ok: true }>(`${BASE}/newsletter/${encodeURIComponent(id)}`),
 
-  // Same shapes as the portfolio's analytics, so the chart and tiles are reused.
+  // Same shapes as the panel's own analytics, so the whole traffic view is reused.
   overview: (days: number) => get<AnalyticsOverview>(`${BASE}/analytics/overview${qs({ days })}`),
   timeseries: (days: number) => get<{ series: TimeseriesPoint[] }>(`${BASE}/analytics/timeseries${qs({ days })}`),
-  topPages: (days: number) => get<{ days: number; total: number; byPath: RevaultPathViews[] }>(`${BASE}/analytics/summary${qs({ days })}`),
+  topPages: (days: number) => get<{ sections: PageSection[] }>(`${BASE}/analytics/top-pages${qs({ days })}`),
+  topReferrers: (days: number) => get<{ referrers: ReferrerHost[] }>(`${BASE}/analytics/top-referrers${qs({ days })}`),
 };

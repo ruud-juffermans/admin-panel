@@ -50,6 +50,9 @@ export interface Funds {
 // (server/src/website/sites.ts). revault.nl is proxied instead, see revault.ts.
 export type SiteId = 'ruudjuffermans.nl' | 'loodgieterjuffermans.nl';
 export const DEFAULT_SITE: SiteId = 'ruudjuffermans.nl';
+// Every site with a traffic view: the panel's own sites plus revault.nl, whose
+// page views live on its own server (reached through the revault proxy).
+export type TrafficSite = SiteId | 'revault.nl';
 
 export interface LocaleCount {
   locale: string;
@@ -57,7 +60,7 @@ export interface LocaleCount {
 }
 
 export interface AnalyticsOverview {
-  site: SiteId;
+  site?: SiteId; // absent for revault.nl
   days: number;
   since: string;
   until: string;
@@ -547,7 +550,3 @@ export interface RevaultNewsletterStats {
   bySource: Array<{ source: string; count: number }>;
 }
 
-export interface RevaultPathViews {
-  path: string;
-  views: number;
-}

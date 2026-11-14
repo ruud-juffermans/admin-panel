@@ -284,6 +284,21 @@ const INTAKES: RevaultIntake[] = INTAKE_STATUSES.map((status, i) => ({
   createdAt: isoAgo(6 + i * 37),
   updatedAt: isoAgo(2 + i * 20),
 }));
+const REVAULT_PAGES: PageSection[] = [
+  { section: 'home', label: 'Home', count: 161, pages: [{ path: '/', section: 'home', count: 161 }] },
+  { section: 'services', label: 'Wallet recovery', count: 74, pages: [{ path: '/wallet-herstel', section: 'services', count: 51 }, { path: '/en/wallet-recovery', section: 'services', count: 23 }] },
+  { section: 'how-it-works', label: 'How it works', count: 52, pages: [{ path: '/werkwijze', section: 'how-it-works', count: 52 }] },
+  { section: 'pricing', label: 'Pricing', count: 46, pages: [{ path: '/tarieven', section: 'pricing', count: 46 }] },
+  { section: 'about', label: 'About', count: 31, pages: [{ path: '/over-mij', section: 'about', count: 31 }] },
+  { section: 'blog', label: 'Blog', count: 24, pages: [{ path: '/blog/seed-phrase-recovery', section: 'blog', count: 24 }] },
+];
+const REVAULT_REFS: ReferrerHost[] = [
+  { host: 'direct', kind: 'direct', count: 171 },
+  { host: 'google.com', kind: 'google', count: 126 },
+  { host: 'revault.nl', kind: 'internal', count: 58 },
+  { host: 'linkedin.com', kind: 'linkedin', count: 21 },
+  { host: 'tweakers.net', kind: 'other', count: 12 },
+];
 function revaultTimeseries(days: number): TimeseriesPoint[] {
   const r = rng(5);
   return Array.from({ length: days }, (_, i) => {
@@ -378,7 +393,8 @@ export async function mockRequest<T>(path: string, init?: RequestInit): Promise<
   }
   if (p === `${R}/intakes`) {
     const status = url.searchParams.get('status');
-    const items = INTAKES.filter((i) => !status || i.status === status);
+    // localStorage 'admin.mock.nointakes' = an empty list (the state a new site starts in).
+    const items = flag('admin.mock.nointakes') ? [] : INTAKES.filter((i) => !status || i.status === status);
     return json({ items, total: items.length, limit: 200, offset: 0 });
   }
   if (p.startsWith(`${R}/intakes/`)) return json(method === 'DELETE' ? { ok: true } : INTAKES[0]);
@@ -390,7 +406,8 @@ export async function mockRequest<T>(path: string, init?: RequestInit): Promise<
     return json({ ...o, totalViews: Math.round(o.totalViews * 0.4), previous: { ...o.previous, totalViews: Math.round(o.previous.totalViews * 0.33) } });
   }
   if (p === `${R}/analytics/timeseries`) return json({ series: revaultTimeseries(days) });
-  if (p === `${R}/analytics/summary`) return json({ days, total: 388, byPath: [{ path: '/', views: 161 }, { path: '/wallet-herstel', views: 74 }, { path: '/werkwijze', views: 52 }, { path: '/tarieven', views: 46 }, { path: '/over-mij', views: 31 }, { path: '/blog/seed-phrase-recovery', views: 24 }] });
+  if (p === `${R}/analytics/top-pages`) return json({ sections: REVAULT_PAGES });
+  if (p === `${R}/analytics/top-referrers`) return json({ referrers: REVAULT_REFS });
 
   throw new ApiError(404, `mock: no fixture for ${method} ${p}`);
 }

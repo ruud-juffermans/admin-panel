@@ -35,6 +35,8 @@ export const REVAULT_ALLOW_LIST: Rule[] = [
   { method: 'GET', pattern: /^\/analytics\/summary$/ },
   { method: 'GET', pattern: /^\/analytics\/overview$/ },
   { method: 'GET', pattern: /^\/analytics\/timeseries$/ },
+  { method: 'GET', pattern: /^\/analytics\/top-pages$/ },
+  { method: 'GET', pattern: /^\/analytics\/top-referrers$/ },
 ];
 
 export function isRevaultAllowed(method: string, path: string): boolean {

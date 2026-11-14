@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { analytics, contact, funds, newsletter, settings } from './website';
-import type { ContactStatus, LlmProviderId, SiteId } from './types';
+import type { ContactStatus, LlmProviderId, SiteId, TrafficSite } from './types';
 import { DEFAULT_SITE } from './types';
 
 // Data is "fresh on reload" (PRD §3): no background polling, short stale window
@@ -11,15 +11,22 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Page views of one website (default the portfolio); see api/types.ts SiteId.
-export const useOverview = (days: number, site: SiteId = DEFAULT_SITE) =>
-  useQuery({ queryKey: ['analytics', site, 'overview', days], queryFn: () => analytics.overview(days, site) });
-export const useTimeseries = (days: number, site: SiteId = DEFAULT_SITE) =>
-  useQuery({ queryKey: ['analytics', site, 'timeseries', days], queryFn: () => analytics.timeseries(days, site) });
-export const useTopPages = (days: number, site: SiteId = DEFAULT_SITE) =>
-  useQuery({ queryKey: ['analytics', site, 'top-pages', days], queryFn: () => analytics.topPages(days, site) });
-export const useTopReferrers = (days: number, site: SiteId = DEFAULT_SITE) =>
-  useQuery({ queryKey: ['analytics', site, 'top-referrers', days], queryFn: () => analytics.topReferrers(days, site) });
+// Page views of one website (default the portfolio); see api/types.ts
+// TrafficSite. revault.nl answers the same four questions from its own server,
+// through the proxy: no retries there, a 502 means that server is down.
+function trafficQuery<T>(site: TrafficSite, name: string, days: number, own: () => Promise<T>, viaRevault: () => Promise<T>) {
+  return site === 'revault.nl'
+    ? { queryKey: ['revault', 'analytics', name, days], queryFn: viaRevault, retry: 0 as const }
+    : { queryKey: ['analytics', site, name, days], queryFn: own };
+}
+export const useOverview = (days: number, site: TrafficSite = DEFAULT_SITE) =>
+  useQuery(trafficQuery(site, 'overview', days, () => analytics.overview(days, site as SiteId), () => revault.overview(days)));
+export const useTimeseries = (days: number, site: TrafficSite = DEFAULT_SITE) =>
+  useQuery(trafficQuery(site, 'timeseries', days, () => analytics.timeseries(days, site as SiteId), () => revault.timeseries(days)));
+export const useTopPages = (days: number, site: TrafficSite = DEFAULT_SITE) =>
+  useQuery(trafficQuery(site, 'top-pages', days, () => analytics.topPages(days, site as SiteId), () => revault.topPages(days)));
+export const useTopReferrers = (days: number, site: TrafficSite = DEFAULT_SITE) =>
+  useQuery(trafficQuery(site, 'top-referrers', days, () => analytics.topReferrers(days, site as SiteId), () => revault.topReferrers(days)));
 
 // Alert thresholds from the server's .env; they change on deploy only.
 export const useSettings = () => useQuery({ queryKey: ['settings'], queryFn: settings.get, staleTime: Infinity });
@@ -145,12 +152,7 @@ export const useRevaultSubscribers = () =>
   useQuery({ queryKey: ['revault', 'newsletter', 'list'], queryFn: () => revault.subscribers(), ...revaultOpts });
 export const useRevaultNewsletterStats = () =>
   useQuery({ queryKey: ['revault', 'newsletter', 'stats'], queryFn: revault.newsletterStats, ...revaultOpts });
-export const useRevaultOverview = (days: number) =>
-  useQuery({ queryKey: ['revault', 'analytics', 'overview', days], queryFn: () => revault.overview(days), ...revaultOpts });
-export const useRevaultTimeseries = (days: number) =>
-  useQuery({ queryKey: ['revault', 'analytics', 'timeseries', days], queryFn: () => revault.timeseries(days), ...revaultOpts });
-export const useRevaultTopPages = (days: number) =>
-  useQuery({ queryKey: ['revault', 'analytics', 'top-pages', days], queryFn: () => revault.topPages(days), ...revaultOpts });
+// Traffic: useOverview / useTimeseries / … with site 'revault.nl' (above).
 
 export function useRevaultIntakeMutations() {
   const qc = useQueryClient();

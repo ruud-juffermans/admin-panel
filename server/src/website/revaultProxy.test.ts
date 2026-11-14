@@ -18,6 +18,8 @@ describe('revault proxy allow-list', () => {
     assert.equal(isRevaultAllowed('DELETE', '/newsletter/clx1abc'), true);
     assert.equal(isRevaultAllowed('GET', '/analytics/overview'), true);
     assert.equal(isRevaultAllowed('GET', '/analytics/timeseries'), true);
+    assert.equal(isRevaultAllowed('GET', '/analytics/top-pages'), true);
+    assert.equal(isRevaultAllowed('GET', '/analytics/top-referrers'), true);
   });
   it('rejects everything else', () => {
     assert.equal(isRevaultAllowed('POST', '/intakes'), false);

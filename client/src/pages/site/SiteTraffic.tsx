@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import styled from 'styled-components';
 import { useOverview, useTimeseries, useTopPages, useTopReferrers } from '../../api/queries';
-import type { ReferrerKind, SiteId } from '../../api/types';
+import type { ReferrerKind, TrafficSite } from '../../api/types';
 import { ShareTable, type ShareRow } from '../../components/ShareTable';
 import { StatTile } from '../../components/StatTile';
 import { TrafficChart } from '../../components/TrafficChart';
@@ -25,16 +25,16 @@ function localeCount(rows: Array<{ locale: string; count: number }>, locale: str
 }
 
 /**
- * Page views of one website from the panel's own page_views table: headline
- * tiles, views per day, top pages by section and referrers by host. The
- * portfolio and the plumbing site share this; revault.nl has its own copy fed
- * by its server (pages/revault/Traffic.tsx).
+ * Page views of one website: headline tiles, views per day, top pages by
+ * section and referrers by host. All three sites share this; the portfolio and
+ * the plumbing site read the panel's own page_views table, revault.nl its own
+ * server (same response shapes, see api/queries.ts).
  *
  * `locales` adds the Dutch/English tiles for a bilingual site. A single-
  * language site gets "views yesterday" and the Google share instead — for a
  * local business found through search, that share is the number that matters.
  */
-export function SiteTraffic({ site, locales = false }: { site: SiteId; locales?: boolean }) {
+export function SiteTraffic({ site, locales = false }: { site: TrafficSite; locales?: boolean }) {
   const { days } = useRange();
   const overview = useOverview(days, site);
   const timeseries = useTimeseries(days, site);

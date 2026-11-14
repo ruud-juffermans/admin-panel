@@ -9,8 +9,6 @@ import {
   useRevaultIntakeStats,
   useRevaultIntakes,
   useRevaultNewsletterStats,
-  useRevaultOverview,
-  useRevaultTimeseries,
   useTimeseries,
   useTopReferrers,
   useTwinApprovals,
@@ -60,8 +58,8 @@ export function OverviewPage() {
   const loodgieter = useOverview(days, 'loodgieterjuffermans.nl');
   const loodgieterSeries = useTimeseries(days, 'loodgieterjuffermans.nl');
   const loodgieterRefs = useTopReferrers(days, 'loodgieterjuffermans.nl');
-  const revault = useRevaultOverview(days);
-  const revaultSeries = useRevaultTimeseries(days);
+  const revault = useOverview(days, 'revault.nl');
+  const revaultSeries = useTimeseries(days, 'revault.nl');
   const revaultIntakes = useRevaultIntakeStats();
   const revaultNew = useRevaultIntakes('NEW');
   const revaultNewsletter = useRevaultNewsletterStats();

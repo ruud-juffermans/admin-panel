@@ -4,7 +4,7 @@ import { Lead, Page, PageHeader, SegmentLink, Segmented, Title } from '../compon
 import { rangeLabel, useRange } from '../range';
 import { RevaultIntakes } from './revault/Intakes';
 import { RevaultNewsletter } from './revault/Newsletter';
-import { RevaultTraffic } from './revault/Traffic';
+import { SiteTraffic } from './site/SiteTraffic';
 import { isRevaultUnavailable } from './revault/shared';
 
 type Tab = 'intakes' | 'newsletter' | 'traffic';
@@ -47,7 +47,7 @@ export function RevaultPage() {
       </PageHeader>
       {tab === 'intakes' && <RevaultIntakes />}
       {tab === 'newsletter' && <RevaultNewsletter />}
-      {tab === 'traffic' && <RevaultTraffic />}
+      {tab === 'traffic' && <SiteTraffic site="revault.nl" locales />}
     </Page>
   );
 }
