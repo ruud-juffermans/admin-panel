@@ -9,12 +9,13 @@ import { isRevaultUnavailable } from './revault/shared';
 
 type Tab = 'intakes' | 'newsletter' | 'traffic';
 
-// revault.nl in one place: intake requests (the free-assessment form),
-// newsletter signups and traffic. The tab lives in the URL (?tab=).
+// revault.nl in one place. Like the other two sites the page opens on its
+// traffic; intake requests (the free-assessment form) and newsletter signups
+// are the other tabs. The tab lives in the URL (?tab=).
 export function RevaultPage() {
   const [params] = useSearchParams();
   const raw = params.get('tab');
-  const tab: Tab = raw === 'newsletter' ? 'newsletter' : raw === 'traffic' ? 'traffic' : 'intakes';
+  const tab: Tab = raw === 'newsletter' ? 'newsletter' : raw === 'intakes' ? 'intakes' : 'traffic';
   const stats = useRevaultIntakeStats();
   const newCount = stats.data?.counts.NEW ?? 0;
   const { days } = useRange();
@@ -34,20 +35,20 @@ export function RevaultPage() {
           <Lead>{lead}</Lead>
         </div>
         <Segmented as="nav" aria-label="Revault section">
-          <SegmentLink to="/revault" $active={tab === 'intakes'}>
+          <SegmentLink to="/revault" $active={tab === 'traffic'}>
+            Traffic
+          </SegmentLink>
+          <SegmentLink to="/revault?tab=intakes" $active={tab === 'intakes'}>
             Intakes{newCount > 0 ? ` · ${newCount}` : ''}
           </SegmentLink>
           <SegmentLink to="/revault?tab=newsletter" $active={tab === 'newsletter'}>
             Newsletter
           </SegmentLink>
-          <SegmentLink to="/revault?tab=traffic" $active={tab === 'traffic'}>
-            Traffic
-          </SegmentLink>
         </Segmented>
       </PageHeader>
+      {tab === 'traffic' && <SiteTraffic site="revault.nl" locales />}
       {tab === 'intakes' && <RevaultIntakes />}
       {tab === 'newsletter' && <RevaultNewsletter />}
-      {tab === 'traffic' && <SiteTraffic site="revault.nl" locales />}
     </Page>
   );
 }
